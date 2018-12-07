@@ -1,0 +1,12 @@
+/target/
+/bin/
+**/_archive/
+# /src/main/java/_archive/
+.classpath.old
+.classpath.OLD
+clean-unpack-src.launch
+.git.OLD/
+.git.old/
+/.git.OLD/
+/.git.old/
+/.settings/
