@@ -1,2 +1,2 @@
 # basics
-Basic Tools
+Basic Tools for other projects

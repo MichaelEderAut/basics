@@ -7,6 +7,11 @@
 clean-unpack-src.launch
 .git.OLD/
 .git.old/
+<<<<<<< HEAD
 /.git.OLD/
 /.git.old/
 /.settings/
+=======
+/.settings/
+/.git.OLD/
+>>>>>>> branch 'master' of https://github.com/MichaelEderAut/basics.git
