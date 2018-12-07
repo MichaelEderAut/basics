@@ -1,44 +1,37 @@
 package  com.github.michaelederaut.basics;
 
-import org.codehaus.plexus.util.ReflectionUtils;
+import static  org.apache.commons.lang3.StringUtils.LF;
 
-import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
-
-import org.apache.commons.lang3.StringUtils;
-import java.lang.reflect.*;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-import java.util.TreeMap;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
-import regexodus.Matcher;
+import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 import regexodus.Pattern;
-import java.util.zip.GZIPInputStream;
-
-import  java.lang.ref.*;
-
-
-// import         apps.multimedia.subtitles.SubtitlesBasis;
-import static  org.apache.commons.lang3.StringUtils.LF;
-import static  org.apache.commons.lang3.SystemUtils.PATH_SEPARATOR;
-import static  org.apache.commons.lang3.SystemUtils.FILE_SEPARATOR;
-
 
 public class ToolsBasics {
 
-	public static final String FS    = FILE_SEPARATOR;
+/**
+     * The system-dependent path-separator character. This field is<br>
+     * initialized to contain the first character of the value of the system<br>
+     * property <code>path.separator</code>.  This character is used to<br>
+     * separate filenames in a sequence of files given as a <em>path list</em>.</p>
+     * On UNIX systems, this character is <code>':'</code>; on Microsoft Windows systems it
+     * is <code>';'</code>.
+     *
+     * @see     java.lang.System#getProperty(java.lang.String)
+     */
+	public static final String PS = java.io.File.pathSeparator;
+	
+    /**
+     * The system-dependent default name-separator character.  This field is<br>
+     * initialized to contain the first character of the value of the system<br>
+     * property <code>file.separator</code>.  On UNIX systems the value of this<br>
+     * field is <code>'/'</code>; on Microsoft Windows systems it is <code>'\\'</code>.
+     *
+     * @see     java.lang.System#getProperty(java.lang.String)
+     */
+	public static final String FS    =  java.io.File.separator;
 	public static final String S_windows_suffix_exe = "exe";
 	public static final String S_windows_suffix_dll = "dll";
 	
