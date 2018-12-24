@@ -1,4 +1,4 @@
-package  com.github.michaelederaut.basics;
+package com.github.michaelederaut.basics;
 
 import static  org.apache.commons.lang3.StringUtils.LF;
 
@@ -15,7 +15,7 @@ public class ToolsBasics {
      * The system-dependent path-separator character. This field is<br>
      * initialized to contain the first character of the value of the system<br>
      * property <code>path.separator</code>.  This character is used to<br>
-     * separate filenames in a sequence of files given as a <em>path list</em>.</p>
+     * separate filenames in a sequence of files given as a <em>path list</em>.<br>
      * On UNIX systems, this character is <code>':'</code>; on Microsoft Windows systems it
      * is <code>';'</code>.
      *

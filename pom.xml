@@ -184,5 +184,22 @@
     <version>1.4.5</version>
 </dependency> 
 
+<!-- because of JOOX start -->
+<dependency>
+   <groupId>org.glassfish.jaxb</groupId>
+   <artifactId>jaxb-runtime</artifactId>
+   <version>2.3.0</version>
+   <scope>compile</scope>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/javax.xml.parsers/jaxp-api -->
+<!-- <dependency>
+    <groupId>javax.xml.parsers</groupId>
+    <artifactId>jaxp-api</artifactId>
+    <version>1.4.5</version>
+    <scope>compile</scope>
+</dependency> -->
+<!-- because of JOOX end -->
+
 </dependencies>
 </project>
