@@ -8,7 +8,7 @@ import  com.github.michaelederaut.basics.cssselectortoxpath.utilities.CssSelecto
 * Take a string and the format of the string is...<br>
 * xxx[yyy]...[zzz]<br>
 * break it up into a list = xxx,[yyy],..,[zzz]<br>
-* if xxx DNE==>break into list=*,[yyy],...,[zzz]<br>
+* if xxx DNE==&gt;break into list=*,[yyy],...,[zzz]<br>
 *<br>
 * create new class<br>
 * make into css element attribute<br>

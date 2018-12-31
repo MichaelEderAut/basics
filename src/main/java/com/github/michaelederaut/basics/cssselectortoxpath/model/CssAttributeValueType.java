@@ -20,7 +20,7 @@ public enum CssAttributeValueType
 
 	private CssAttributeValueType(String nameIn)
 	{
-		this.equalString=nameIn;
+		this.equalString = nameIn;
 	}
 
 	public String getEqualStringName() {

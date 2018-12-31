@@ -49,11 +49,11 @@ public class CssElementCombinatorPairsToXpath
 	private static Properties getVersionProperties() {
 		ClassLoader classLoader = CssElementCombinatorPairsToXpath.class.getClassLoader();
 		Properties properties= new Properties();
-		try {
-			properties.load(classLoader.getResourceAsStream("version.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			properties.load(classLoader.getResourceAsStream("version.properties"));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		return properties;
 	}
 

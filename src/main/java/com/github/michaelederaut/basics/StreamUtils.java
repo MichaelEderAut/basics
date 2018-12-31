@@ -86,6 +86,9 @@ public class StreamUtils {
 	    }
 	
 	public static class EndCriterion {
+		 
+		   public   static final long	L_timeout_dflt               = 10_000L;   
+		
 		   public          Long          L_timeout                   = 0L;  
 		   public          RangedPattern AO_ranged_patterns_stdoud[] = null;
 		   public          Pattern       P_end_crit_stderr           = null;
@@ -102,7 +105,7 @@ public class StreamUtils {
 	    public EndCriterion() {
 			  
 			  this(
-				10_000L,
+				L_timeout_dflt,
 				new RangedPattern[] 
 			    {new RangedPattern()}, 
 				RangedPattern.P_default_non_empty);
@@ -218,9 +221,20 @@ public class StreamUtils {
 	    	LineNumberReader O_retval_lnr_rdr;
 	    	InputStreamReader O_inp_str_reader;
 	    	
+	    	
 	    	O_retval_lnr_rdr = null;
 	    	
 	    	if (PI_O_inp_stream != null) {
+//	    		byte AC_debug_dummy[];  
+//	    		String S_debug_dummy;
+//	    		try {
+//					AC_debug_dummy = PI_O_inp_stream.readAllBytes();
+//					S_debug_dummy = new String(AC_debug_dummy);
+//				} catch (IOException e) {
+//					S_debug_dummy = null;
+//					e.printStackTrace(System.err);
+//				}
+//	    		System.out.println("Debug-String: " + S_debug_dummy);  // OK has data H:\10\gnu\python\3\python.exe
 	    		O_inp_str_reader = new InputStreamReader(PI_O_inp_stream);
 	    		O_retval_lnr_rdr = new LineNumberReader(O_inp_str_reader);
 	    	    }
@@ -244,7 +258,9 @@ public class StreamUtils {
 	    public static List<String> FAS_get_contents_from_stream(
 	    		final InputStream PI_O_inp_stream,
 	    		final EndCriterion PB_O_end_criterion) {
-	    		    	
+	    	
+	    	IllegalArgumentException E_ill_arg;
+	    	RuntimeException         E_rt;
 	    	LineNumberReader O_buff_rdr;
 	    	Stack<String> AS_retval;
 	    	SimpleTimeLimiter O_time_limiter;
@@ -259,8 +275,8 @@ public class StreamUtils {
 	    	Long L_timeout;
 	    	long L_timestamp_init, L_timestamp_2;
 	    	boolean B_end_criterion_found;
-	    	String S_line_inp, S_msg_1;
-	    	int I_line_nbr_f1, i2,  I_nbr_ranged_patterns_f1, I_line_nbr_from_f1, I_line_nbr_to_f1, I_idx_pattern_f0;
+	    	String S_line_inp, S_msg_1, S_msg_2;
+	    	int I_line_nbr_f1, i2, I_nbr_ranged_patterns_f1, I_line_nbr_from_f1, I_line_nbr_to_f1, I_idx_pattern_f0;
 	    
 	    	AS_retval = (Stack<String>)null;
 	    	
@@ -269,18 +285,33 @@ public class StreamUtils {
 	    	    }
 	    	
 	    	O_buff_rdr = FO_get_lnr_rdr_from_stream(PI_O_inp_stream);
+//	    	String S_dummy_line;
+//	    	try {
+//				S_dummy_line = O_buff_rdr.readLine();
+//			} catch (IOException e) {
+//				S_dummy_line = null;
+//				e.printStackTrace(System.err);
+//			}
+//	    	System.out.println("Dummy-line: " + S_dummy_line); // OK has data: H:\10\gnu\python\3\python.exe
 	    	O_callable_buff_reader = new CallableBufferedReader(O_buff_rdr);
 	    	
 	    	O_time_limiter = null;
 	    	P_end_requ     = null;
 	    	P_end_session  = null;
-	    	L_timeout      = 0L;
+	    	L_timeout      = null; // 0L;
 	    	
 	    	if (PB_O_end_criterion == null) {
 	    		AO_ranged_patterns = null;
 	    	   }
 	    	else {
 	    		L_timeout = PB_O_end_criterion.L_timeout;
+	    		if ((L_timeout != null) && (L_timeout < 0)) {
+	    			S_msg_1 = "Invalid value for timeout: " + L_timeout + ".";
+	    			E_ill_arg = new IllegalArgumentException(S_msg_1);
+	    			S_msg_2 = "Unable to read contents from input-stream.";
+	    			E_rt = new RuntimeException(S_msg_2, E_ill_arg);
+	    			throw E_ill_arg;
+	    		    }
 	    		PB_O_end_criterion.I_idx_qualifying_pattern_f0 = -1;
 	    		PB_O_end_criterion.O_grp_match_result_req      = null;
 	    		PB_O_end_criterion.O_grp_match_result_sess     = null;

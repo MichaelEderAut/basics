@@ -22,7 +22,7 @@ import org.apache.commons.lang3.SystemUtils;
 import regexodus.Pattern;
 
 import com.github.michaelederaut.basics.StreamUtils.RangedPattern;
-import static org.apache.commons.lang3.SystemUtils.FILE_SEPARATOR;
+import static com.github.michaelederaut.basics.ToolsBasics.FS;
 
 public class ExecUtils {
 	public static final Long L_timeout_stderr = 500L; //;  100_000_000
@@ -53,9 +53,17 @@ public class ExecUtils {
     public static class ExecResult {
     	public List<String>[] AAS_retvals = null;
     	public Process O_proc;
-    	public int I_exit_code = -1;
-    }
+    	public int I_exit_value;
     
+       public ExecResult() {
+    	   this(0);
+       }
+    
+       public ExecResult(final int PI_I_exit_value) {
+    	  this.I_exit_value = PI_I_exit_value;
+    	  return;
+        }
+    }
     public  static ExecResult FAAS_exec_sync (
 			  final String PI_S_cmd,
 			  final String PI_AS_envp[],
@@ -152,7 +160,7 @@ public  static ExecResult FAAS_exec_sync (
 			  PI_AS_envp,
 			  PI_F_wd,
 			  PB_O_end_criterion,  
-			  0L);
+			  (Long)null);  // OL
 			  
 	  return O_retval_exec_result;
   }
@@ -189,7 +197,7 @@ public  static ExecResult FAAS_exec_sync (
 	     boolean B_finished_ok, B_is_alive;
 		 ExecResult O_retval_exec_result;
 		  
-		 O_retval_exec_result =  new ExecResult();
+		 O_retval_exec_result = new ExecResult();
 		
 		E_rt_2 = null;  
 		S_cmd_diagnostics = StringUtils.join(PI_AS_cmd, ' ');
@@ -222,9 +230,10 @@ public  static ExecResult FAAS_exec_sync (
 			
 			O_proc_builder = new ProcessBuilder(PI_AS_cmd);
 			O_proc_builder = O_proc_builder.directory(PI_F_wd);
-			// O_proc_builder.environment(PI_AS_envp);
-			 O_proc_builder = O_proc_builder.redirectError(Redirect.PIPE);  // PIPE = default value
-			 O_proc_builder = O_proc_builder.redirectOutput(Redirect.PIPE); // PIPE = default value
+		//	O_proc_builder = O_proc_builder.e
+		//	 O_proc_builder.environment(PI_AS_envp);
+			// O_proc_builder = O_proc_builder.redirectError(Redirect.PIPE);  // PIPE = default value
+			// O_proc_builder = O_proc_builder.redirectOutput(Redirect.PIPE); // PIPE = default value
 			 
 			O_proc = O_proc_builder.start();
 			
@@ -233,6 +242,9 @@ public  static ExecResult FAAS_exec_sync (
 			   O_retval_exec_result.O_proc = O_proc;
 			   ExecUtils.O_proc = O_proc;
 			   }
+			else {
+			   O_retval_exec_result.I_exit_value = O_proc.exitValue();
+			}
 		} catch (NullPointerException|IllegalArgumentException|IndexOutOfBoundsException|IOException|SecurityException PI_E_io) {
 			 S_msg_1 = PI_E_io.getClass().getName() + 
    	    		  " occured during execution of \'" + S_cmd_diagnostics + "'" ; 
@@ -240,8 +252,20 @@ public  static ExecResult FAAS_exec_sync (
    	         E_rt_1.printStackTrace(System.err);
    	         return O_retval_exec_result;	
 		} 
-		  
+		
 		O_stream_out = O_proc.getInputStream();
+//		if (PI_AS_cmd.length > 2) {
+//			byte AC_dummy[];
+//			String S_dummy;
+//			try {
+//				AC_dummy = O_stream_out.readAllBytes();  // OK has contents
+//				S_dummy = new String(AC_dummy);
+//				System.out.println("Result of operation: " + S_dummy);
+//			} catch (IOException e) {
+//				e.printStackTrace(System.err);
+//			}
+//		}
+		 
 		if (O_stream_out != null) {
 			O_retval_exec_result.AAS_retvals = new List[2];
 			O_retval_exec_result.AAS_retvals[0] =  StreamUtils.FAS_get_contents_from_stream(
@@ -266,10 +290,10 @@ public  static ExecResult FAAS_exec_sync (
 		
 		if (PI_L_timeout_proc == 0L) {
 			try {
-			    O_retval_exec_result.I_exit_code = O_proc.waitFor();
+			    O_retval_exec_result.I_exit_value = O_proc.waitFor();
 		        }
 		    catch (InterruptedException PI_E_intr) {
-		      O_retval_exec_result.I_exit_code = -1;
+		      O_retval_exec_result.I_exit_value = -1;
 			  S_msg_1 = PI_E_intr.getClass().getSimpleName() + " occurred during excution of " + "'PI_S_cmd";
 			  E_rt_1 = new RuntimeException(S_msg_1, PI_E_intr);
 			  PI_E_intr.printStackTrace(System.err);
@@ -280,19 +304,33 @@ public  static ExecResult FAAS_exec_sync (
 			try {
 				B_finished_ok =  O_proc.waitFor(PI_L_timeout_proc, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException PI_E_intr) {
-				 O_retval_exec_result.I_exit_code = -1;
+				 O_retval_exec_result.I_exit_value = -1;
 				 S_msg_1 = PI_E_intr.getClass().getSimpleName() + " occurred during excution of " + "'PI_S_cmd";
 				 E_rt_1 = new RuntimeException(S_msg_1, PI_E_intr);
 				 PI_E_intr.printStackTrace(System.err);
 			    }
 			 if (!B_finished_ok) {
-				 O_retval_exec_result.I_exit_code = -1; 
+				 O_retval_exec_result.I_exit_value = -1; 
 			     } 
 			  }
 		   return O_retval_exec_result;
 		 }
 	         
-	  public static String FS_get_parent_of_executable(final String PI_S_bn_executable) {
+	public static String FS_get_parent_of_executable(
+			  final String PI_S_bn_executable) { 
+	
+		String S_retval_parent;
+		
+		S_retval_parent = FS_get_parent_of_executable(
+				 PI_S_bn_executable,
+				 (Long)null);  // timeout null --> wait forever
+		return S_retval_parent;
+		
+	}
+	
+	public static String FS_get_parent_of_executable(
+			  final String PI_S_bn_executable,
+			  final Long   PI_L_timeout) {
 		  S_dn_parent = (String)null;
 		  
 		  List<String> AS_pna_executables, AAS_retvals[];
@@ -301,7 +339,7 @@ public  static ExecResult FAAS_exec_sync (
 		  String S_cmd, S_pna_executable, S_pn_suffix;
 		  int I_nbr_exec_paths, i1, I_len_suffix, I_len_pna, I_len_dn_parent_f1;
 		 
-		  S_pn_suffix = FILE_SEPARATOR + PI_S_bn_executable;
+		  S_pn_suffix = FS + PI_S_bn_executable;
 		  I_len_suffix = S_pn_suffix.length();
 		  
 		  if (SystemUtils.IS_OS_WINDOWS) {
@@ -311,7 +349,7 @@ public  static ExecResult FAAS_exec_sync (
 					  new String[]{"WHERE", PI_S_bn_executable},  
 					  null, // env vars
 					  null, // working dir
-					  0L);  // timeout
+					  PI_L_timeout);  // timeout
 			  AAS_retvals = O_exec_result.AAS_retvals;
 			  if ((AAS_retvals != null) && (AAS_retvals.length >= 1)) {
 				  AS_pna_executables = AAS_retvals[0];
