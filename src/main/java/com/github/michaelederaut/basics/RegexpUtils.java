@@ -230,18 +230,31 @@ public class RegexpUtils {
 	  }
 	  
 	  public static class NamedMatch {
-		public  String S_val;
-		public  int I_idx_d0;
+		 public  String S_grp_val;
+		 public  int I_idx_d0;
 		  
 		  public NamedMatch(
-				  final String PI_S_val,
+				  final String PI_S_grp_val,
 				  final int    PI_I_idx_f0) {
 			
-			  this.S_val    = PI_S_val;
+			  this.S_grp_val    = PI_S_grp_val;
 			  this.I_idx_d0 = PI_I_idx_f0;
 			  return;
-			  
+		      }  
 		  }
+	  
+	   protected static class NamedMatch4Dbg extends NamedMatch {
+		   public String S_grp_name;
+		   
+		   public NamedMatch4Dbg(
+				  final String PI_S_grp_val,
+				  final int    PI_I_idx_f0,
+				  final String PI_S_grp_name) {
+			   super(PI_S_grp_val, PI_I_idx_f0);
+			   this.S_grp_name = PI_S_grp_name;
+			   return;
+		   }
+		   
 	  }
 	
 	  public static class GroupMatchResult {
@@ -260,6 +273,34 @@ public class RegexpUtils {
 	    	   AS_numbered_groups       = null;
 	    	   HS_named_groups          = null;
 	    	   }}
+		
+		public StringBuilder toString_f() {
+			
+			String S_numbered_group;
+			int i1;
+			BiConsumer<String, NamedMatch> F_action;
+		
+			StringBuilder SB_retval;
+	
+		SB_retval = new StringBuilder();
+		if (this.I_array_size_f1 == 0) {
+			return SB_retval;
+		    }
+		for (i1 = 0; i1 < this.I_array_size_f1; i1++) {
+			S_numbered_group = this.AS_numbered_groups[i1];
+			SB_retval.append("[[" + String.format("%02d]: %s]", i1, S_numbered_group));  				
+			}
+		if (this.I_map_size_f1 == 0) {
+			return SB_retval;
+		    }
+		SB_retval.append("\n[");
+		F_action = (final String PI_S_grp_name, final NamedMatch PI_O_NamedMatch) -> {
+			 SB_retval.append("[" + PI_S_grp_name + ", " + PI_O_NamedMatch.I_idx_d0 + ", " + PI_O_NamedMatch.S_grp_val + "]");
+		     };	
+		this.HS_named_groups.forEach(F_action);	
+		
+		return SB_retval;
+	      }
 	   }
 
 		public static final GroupMatchResult NO_MATCH = new GroupMatchResult(0);
@@ -311,7 +352,7 @@ public class RegexpUtils {
 				    F_action = (final String PI_S_named_gr, final Integer PI_I_idx_f0) -> {
 				    	NamedMatch O_named_match;
 				    	StringBuilder SB_receiving_match;
-				    	String  S_receiving_match, S_match_from_array;
+				      	String  S_receiving_match, S_match_from_array;
 				    	boolean B_found_named_match;
 				    	
 				   	    SB_receiving_match = new StringBuilder();
@@ -393,5 +434,5 @@ public class RegexpUtils {
 		
 		return O_retval_group_match_result;
 		
-}
+       }
 }
