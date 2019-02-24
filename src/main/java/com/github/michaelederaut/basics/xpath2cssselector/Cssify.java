@@ -4,6 +4,7 @@ import java.util.HashMap;
 import regexodus.Pattern;
 import com.github.michaelederaut.basics.RegexpUtils;
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
+import com.github.michaelederaut.basics.RegexpUtils.NamedMatch;
 /**
  * 
  * Originally written in Python by [santiycr](https://github.com/santiycr)
@@ -15,6 +16,7 @@ public class Cssify {
 	public static class ConversionResult {
 		
 		public static final String ERR_MSG_NULL_XPATH = "xpath argument must not be a null-string.";
+		public static final String ERR_MSG_UNSOPPORTED_XPATH = "Invalid or unsupported Xpath: ";
 		public String S_value;
 		public String S_err_msg;
 		 
@@ -54,10 +56,12 @@ protected static final Pattern P_validation_parser = Pattern.compile(S_re_valida
 
 public static ConversionResult FO_convert(final String PI_S_xpath) {
 	
+	HashMap<String, NamedMatch> HS_named_groups;
 	GroupMatchResult O_grp_match_res;
-	String S_err_msg, S_xpath_substr, S_diagnostic_string;
+	String S_err_msg, S_xpath_substr, S_diagnostic_string,
+	       S_nav, S_nav_ret, S_tag, S_tag_ret;
 	int I_len_xpath_f1;
-	
+	NamedMatch O_named_match_node, O_named_match_nav, O_named_match_tag;
 	
 	int I_pos_f0 = 0;
 	ConversionResult O_retval_result = new ConversionResult((String)null);
@@ -74,6 +78,44 @@ public static ConversionResult FO_convert(final String PI_S_xpath) {
 		O_grp_match_res = RegexpUtils.FO_match(S_xpath_substr, P_validation_parser);
 		S_diagnostic_string = O_grp_match_res.toString();
 		System.out.println("Group-Match result: " + S_diagnostic_string);
+		if (O_grp_match_res.I_map_size_f1 == 0) {
+			S_err_msg = ConversionResult.ERR_MSG_UNSOPPORTED_XPATH + PI_S_xpath + "\n" + "No named group found";
+			O_retval_result.S_err_msg = S_err_msg;
+			return O_retval_result;
+		   }
+		HS_named_groups = O_grp_match_res.HS_named_groups;
+		O_named_match_node = HS_named_groups.get("node");
+		if (O_named_match_node == null) {
+			S_err_msg = ConversionResult.ERR_MSG_UNSOPPORTED_XPATH + PI_S_xpath + "\n" + "node not found";
+			O_retval_result.S_err_msg = S_err_msg;
+			return O_retval_result;
+		    }
+		System.out.println(O_named_match_node.I_idx_d0 + " - " + O_named_match_node.S_grp_val);
+		if (I_pos_f0 == 0) {
+			S_nav_ret = "";
+		    }
+		else {
+			if (((O_named_match_nav = HS_named_groups.get("nav")) != null) && (O_named_match_nav.S_grp_val == "//")) {
+				S_nav_ret = " ";
+			    }
+			else {
+			    S_nav_ret = " > ";	
+			    }
+		    }
+		
+		if (((O_named_match_tag = HS_named_groups.get("tag")) != null) && (O_named_match_tag.S_grp_val == "*")) {
+				S_tag_ret = "";
+			    }
+			else {
+			   if ((O_named_match_tag != null) && (O_named_match_tag.S_grp_val != null)) {
+				  S_tag_ret = O_named_match_tag.S_grp_val;  
+			      }
+			   else {
+				   S_tag_ret = "";  
+			   }
+		    }
+		
+		 break;
 		// TODO
 	}
 	return O_retval_result;

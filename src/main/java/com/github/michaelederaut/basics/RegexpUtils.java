@@ -278,7 +278,7 @@ public class RegexpUtils {
 			
 			String S_numbered_group;
 			int i1;
-			BiConsumer<String, NamedMatch> F_action;
+			BiConsumer<String, NamedMatch> F_action_1, F_action_2;
 		
 			StringBuilder SB_retval;
 	
@@ -288,16 +288,24 @@ public class RegexpUtils {
 		    }
 		for (i1 = 0; i1 < this.I_array_size_f1; i1++) {
 			S_numbered_group = this.AS_numbered_groups[i1];
-			SB_retval.append("[[" + String.format("%02d]: %s]", i1, S_numbered_group));  				
+			if (S_numbered_group != null)
+			   SB_retval.append("[[" + String.format("%02d]: %s]\n", i1, S_numbered_group));  				
 			}
 		if (this.I_map_size_f1 == 0) {
 			return SB_retval;
 		    }
-		SB_retval.append("\n[");
-		F_action = (final String PI_S_grp_name, final NamedMatch PI_O_NamedMatch) -> {
-			 SB_retval.append("[" + PI_S_grp_name + ", " + PI_O_NamedMatch.I_idx_d0 + ", " + PI_O_NamedMatch.S_grp_val + "]");
+		SB_retval.append("\n");
+		F_action_1 = (final String PI_S_grp_name, final NamedMatch PI_O_NamedMatch) -> {
+			 if (PI_O_NamedMatch.S_grp_val != null) {
+			    SB_retval.append("[" + PI_S_grp_name + ", " + String.format("%02d", PI_O_NamedMatch.I_idx_d0) + ", " + PI_O_NamedMatch.S_grp_val + "]\n");
+			    }
 		     };	
-		this.HS_named_groups.forEach(F_action);	
+		this.HS_named_groups.forEach(F_action_1);	
+		SB_retval.append("\n");
+		F_action_2 = (final String PI_S_grp_name, final NamedMatch PI_O_NamedMatch) -> {
+			    SB_retval.append("[" + PI_S_grp_name + ", " + String.format("%02d", PI_O_NamedMatch.I_idx_d0) + ", " + PI_O_NamedMatch.S_grp_val + "]\n");
+		     };
+		this.HS_named_groups.forEach(F_action_2);
 		
 		return SB_retval;
 	      }
