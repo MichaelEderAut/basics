@@ -13,7 +13,8 @@ import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 public class Cssify {
 	
 	public static class ConversionResult {
-			
+		
+		public static final String ERR_MSG_NULL_XPATH = "xpath argument must not be a null-string.";
 		public String S_value;
 		public String S_err_msg;
 		 
@@ -51,7 +52,7 @@ protected static final String S_re_validation_parser =
 
 protected static final Pattern P_validation_parser = Pattern.compile(S_re_validation_parser);
 
-public static final ConversionResult FO_convert(final String PI_S_xpath) {
+public static ConversionResult FO_convert(final String PI_S_xpath) {
 	
 	GroupMatchResult O_grp_match_res;
 	String S_err_msg, S_xpath_substr, S_diagnostic_string;
@@ -62,7 +63,7 @@ public static final ConversionResult FO_convert(final String PI_S_xpath) {
 	ConversionResult O_retval_result = new ConversionResult((String)null);
 	
 	if (PI_S_xpath == null) {
-		S_err_msg = "xpath argument must not be a null-string.";
+		S_err_msg = ConversionResult.ERR_MSG_NULL_XPATH;
 		O_retval_result.S_err_msg = S_err_msg;
 		return O_retval_result;
 	    }
