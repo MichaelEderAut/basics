@@ -7,7 +7,7 @@ import com.github.michaelederaut.basics.xpath2cssselector.Cssify.ConversionResul
 
 public class CssifyCached {
 	
-	   	public static final int I_max_nbr_elements_dflt = 1024;
+	   	public static final int I_max_nbr_elements_dflt = 2047;
 		public        int I_max_nbr_elements;
 		ConversionResults HS_conversion_res;
 		
@@ -39,14 +39,27 @@ public class CssifyCached {
 
 	public CssifyCached() {
 		this(I_max_nbr_elements_dflt);
-	}
-	public CssifyCached(final int PI_I_max_nbr_elements) {
+	    }
+	
+	public CssifyCached(
+			final int    PI_I_max_nbr_elements) {
+		
 		this.I_max_nbr_elements = PI_I_max_nbr_elements;
 		this.HS_conversion_res = new ConversionResults(PI_I_max_nbr_elements);
 		return;
 	    }
 	
-	public ConversionResult FO_convert(final String PI_S_xpath) {
+	public ConversionResult FO_convert(
+			final String PI_S_xpath) {
+	ConversionResult O_retval_conversion_result;
+	
+	O_retval_conversion_result = this.FO_convert(PI_S_xpath, true);
+	return O_retval_conversion_result;
+	}
+	
+	public ConversionResult FO_convert(
+			final String PI_S_xpath,
+			final boolean PI_B_throw_errs) {
 		ConversionResult O_retval_conv_res;
 		String S_err_msg;
 		
@@ -61,7 +74,7 @@ public class CssifyCached {
 			return O_retval_conv_res;
 		    }
 		
-		O_retval_conv_res = Cssify.FO_convert(PI_S_xpath);
+		O_retval_conv_res = Cssify.FO_convert(PI_S_xpath, PI_B_throw_errs);
 	    this.HS_conversion_res.put(PI_S_xpath, O_retval_conv_res);
 		
 		return O_retval_conv_res;
