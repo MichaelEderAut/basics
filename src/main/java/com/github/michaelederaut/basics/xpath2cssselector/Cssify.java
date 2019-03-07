@@ -14,7 +14,7 @@ import com.github.michaelederaut.basics.RegexpUtils.NamedMatch;
 /**
  * 
  * Originally written in Python by [santiycr](https://github.com/santiycr)
- * Ported to Java by Mr. Michael Eder
+ * Ported to Java (and extended) by Mr. Michael Eder
  *
  */
 public class Cssify {
@@ -22,7 +22,10 @@ public class Cssify {
 	public static class ConversionResult {
 		
 		public static final String ERR_MSG_NULL_XPATH = "xpath argument must not be a null-string.";
-		public static final String ERR_MSG_UNSOPPORTED_XPATH = "Invalid or unsupported Xpath: ";
+		
+		public static final String ERR_MSG_UNSUPPORTED_XPATH        = "Unsupported Xpath: ";
+		public static final String ERR_MSG_INVALID_XPATH            = "Invalid Xpath: ";
+		public static final String ERR_MSG_INV_OR_UNSUPPORTED_XPATH = "Invalid or unsupported Xpath: ";
 		public String S_value;
 		public String S_err_msg;
 		 
@@ -43,6 +46,23 @@ protected static final HashMap<String, String> HS_sub_re = new HashMap<String, S
 	put("value",     "\\s*[\\w/:][-/\\w\\s,:;.]*");
 }};
 
+//static final String S_re_validation_parser =
+//    "({node}" + 
+//       "(" + // special case! id(idValue)
+//          "^id\\(({lquote}[\\\"\\']?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}[\\\"\\']?)\\)" +  
+//       "|" +
+//          "({nav}//?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
+//          "(\\[(" + //  [@id="foo"] and [text()="bar"]
+//             "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}[\\\"\\']?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}[\\\"\\']?)" +
+//          "|" + //  [contains(text(), "foo")] or [contains(@id, "bar")]
+//             "({contained}contains\\(({cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
+//          "|" + //  [starts-with(text(), "foo")] or [starts-with(@id, "bar")]
+//             "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
+//          ")\\])?" +
+//          "(\\[({nth}\\d+)\\])?" +
+//      ")" +
+//    ")"; // end of named pattern "node" 
+ 
 static final String S_re_validation_parser =
     "({node}" + 
        "(" + // special case! id(idValue)
@@ -56,10 +76,9 @@ static final String S_re_validation_parser =
           "|" + //  [starts-with(text(), "foo")] or [starts-with(@id, "bar")]
              "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
           ")\\])?" +
-          "(\\[({nth}\\d+)\\])?" +
+          "(\\[({nth}\\d+|last\\(\\))\\])?" +
       ")" +
     ")"; // end of named pattern "node" 
- 
 protected static final Pattern P_validation_parser = Pattern.compile(S_re_validation_parser);
 
 
@@ -77,7 +96,8 @@ public static ConversionResult FO_convert(
 		final boolean PI_B_throw_errs) {
 	
 	IllegalArgumentException E_ill_arg;
-	XPathException           E_xpath;
+	// XPathException           E_xpath;
+	AssertionError              E_assert;
 	
 	HashMap<String, NamedMatch> HS_named_groups;
 	GroupMatchResult O_grp_match_res;
@@ -114,7 +134,7 @@ public static ConversionResult FO_convert(
 //		S_diagnostic_string = O_grp_match_res.toString();
 //		System.out.println("Group-Match result: " + S_diagnostic_string);
 		if (O_grp_match_res.I_map_size_f1 == 0) {
-			S_err_msg = ConversionResult.ERR_MSG_UNSOPPORTED_XPATH + "\'" + PI_S_xpath + "\'" + LF + "No named group found";
+			S_err_msg = ConversionResult.ERR_MSG_INV_OR_UNSUPPORTED_XPATH + "\'" + PI_S_xpath + "\'" + LF + "No named group found";
 			if (PI_B_throw_errs) {
 				E_ill_arg = new IllegalArgumentException(S_err_msg);
 				throw E_ill_arg;
@@ -125,7 +145,7 @@ public static ConversionResult FO_convert(
 		HS_named_groups = O_grp_match_res.HS_named_groups;
 		O_named_match_node = HS_named_groups.get("node");
 		if (O_named_match_node == null) {
-			S_err_msg = ConversionResult.ERR_MSG_UNSOPPORTED_XPATH + "\'" + PI_S_xpath + "\'" + LF + "node not found";
+			S_err_msg = ConversionResult.ERR_MSG_INV_OR_UNSUPPORTED_XPATH + "\'" + PI_S_xpath + "\'" + LF + "node not found";
 			if (PI_B_throw_errs) {
 				E_ill_arg = new IllegalArgumentException(S_err_msg);
 				throw E_ill_arg;
@@ -159,7 +179,7 @@ public static ConversionResult FO_convert(
 		   }
 		
 		if (((O_named_match_idvalue = HS_named_groups.get("idvalue")) != null) && ((S_idvalue = O_named_match_idvalue.S_grp_val) != null)) {
-		   O_named_match_lquote = HS_named_groups.get("lquote");  // special case! id(idValue)
+		   O_named_match_lquote = HS_named_groups.get("lquote");  // s p e c i a l   c a s e!  id(idValue)
 		   if (O_named_match_lquote != null) {
 			  S_lquote = O_named_match_lquote.S_grp_val;
 			  }
@@ -196,12 +216,16 @@ public static ConversionResult FO_convert(
 			S_attr_ret = String.format("#%s", S_idvalue.replace(" ", "#"));
 		    }
 		else if (((O_named_match_matched = HS_named_groups.get("matched")) != null) && (O_named_match_matched.S_grp_val != null)) {
-			if (((O_named_match_mvalue = HS_named_groups.get("mvalue")) != null)) {
+			S_mvalue = null;
+			if ((O_named_match_mvalue = HS_named_groups.get("mvalue")) != null) {
 				S_mvalue = O_named_match_mvalue.S_grp_val;
-				}
-			else {
-				S_mvalue = null;
 			    }
+			if (S_mvalue == null) {
+				S_err_msg = "Match value must not be null here.";
+				E_assert = new AssertionError(S_err_msg);
+				throw E_assert;	
+			    }
+
 			O_named_match_lquote = HS_named_groups.get("lquote");
 			if (O_named_match_lquote != null) {
 				S_lquote = O_named_match_lquote.S_grp_val;
@@ -211,14 +235,14 @@ public static ConversionResult FO_convert(
 				}
 			if (StringUtils.isEmpty(S_lquote)) {
 			   S_err_msg = "Invalid xpath: \"" + S_xpath_substr + "\"" + LF +
-				    	   "Attribute value must start with a quote sign.";
+				    	   "Attribute value must start with a quotation character (' or \").";
 			   if (PI_B_throw_errs) {
 				  E_ill_arg = new IllegalArgumentException(S_err_msg);
 				  throw E_ill_arg;
 				  }
 			   O_retval_result.S_err_msg = S_err_msg;
 			   return O_retval_result;
-				  }
+			   }
 			O_named_match_rquote = HS_named_groups.get("rquote");
 			if (O_named_match_rquote != null) {
 			   S_rquote = O_named_match_rquote.S_grp_val;
@@ -228,7 +252,7 @@ public static ConversionResult FO_convert(
 			   }
 			if (!S_lquote.equals(S_rquote)) {
 				S_err_msg = "Invalid xpath: \"" + S_xpath_substr + "\"" + LF +
-				"Different left quote (" + S_lquote + ") and right quote (" + S_rquote + ") around attribute value.";
+				"Different left quote (" + S_lquote + ") and right quote (" + S_rquote + ") around value \'" + S_mvalue +  "\'";
 				if (PI_B_throw_errs) {
 				    E_ill_arg = new IllegalArgumentException(S_err_msg);
 				    throw E_ill_arg;
@@ -248,7 +272,6 @@ public static ConversionResult FO_convert(
 			   }
 			else if (S_mattr != null) {  // 
 			   if (S_mattr.startsWith("@") && (S_mattr.length() > 1)) {
-				    
 				    S_mvalue = null;
 			        if (((O_named_match_mvalue = HS_named_groups.get("mvalue")) != null) && ((S_mvalue = O_named_match_mvalue.S_grp_val) != null)) {
 				       if (S_mvalue.indexOf(" ") != -1) { // surround value with quotes if it contains any space character to appear as a single word
@@ -269,36 +292,117 @@ public static ConversionResult FO_convert(
 				    }
 			     }
 		    }
-		else if (((O_named_match_contained = HS_named_groups.get("contained")) != null) && ((S_contained_value = O_named_match_contained.S_grp_val) != null)) {
-				 S_cattr = null;  // contains attr
-				 if ((O_named_match_cvalue = HS_named_groups.get("cvalue")) != null) { // contains value
-					 S_cvalue = O_named_match_cvalue.S_grp_val; 
-					 }
-				 else {
-				    S_cvalue = null;
+		else if (((O_named_match_contained = HS_named_groups.get("contained")) != null) && ((S_contained_value = O_named_match_contained.S_grp_val) != null)) {			 
+			S_cvalue = null; // initialize attribute value for contains function
+			if ((O_named_match_cvalue = HS_named_groups.get("cvalue")) != null) {
+				S_cvalue = O_named_match_cvalue.S_grp_val; 
+			    }
+			if (S_cvalue == null) { // check attribute value for contains function
+				S_err_msg = "Contains-atribute value must not be null here.";
+				E_assert = new AssertionError(S_err_msg);
+				throw E_assert;	
+			    }
+			 O_named_match_lquote = HS_named_groups.get("lquote");
+			 if (O_named_match_lquote != null) {
+				S_lquote = O_named_match_lquote.S_grp_val;
+				}
+			 else {
+				S_lquote = null;
+				}
+			if (StringUtils.isEmpty(S_lquote)) {
+			   S_err_msg = "Invalid xpath: \"" + S_xpath_substr + "\"" + LF +
+				    	   "Contains value must start with a quotation character (' or \").";
+			   if (PI_B_throw_errs) {
+				  E_ill_arg = new IllegalArgumentException(S_err_msg);
+				  throw E_ill_arg;
+				  }
+			   O_retval_result.S_err_msg = S_err_msg;
+			   return O_retval_result;
+			   }
+			O_named_match_rquote = HS_named_groups.get("rquote");
+			if (O_named_match_rquote != null) {
+			   S_rquote = O_named_match_rquote.S_grp_val;
+			   }
+			else {
+			   S_rquote = null;
+			   }
+			if (!S_lquote.equals(S_rquote)) {
+				S_err_msg = "Invalid xpath: \"" + S_xpath_substr + "\"" + LF +
+				"Different left quote (" + S_lquote + ") and right quote (" + S_rquote + ") around starts-with value \'" + S_cvalue +  "\'";
+				if (PI_B_throw_errs) {
+				    E_ill_arg = new IllegalArgumentException(S_err_msg);
+				    throw E_ill_arg;
 				    }
-				 if (((O_named_match_cattr = HS_named_groups.get("cattr")) != null) && 
-				       StringUtils.startsWith((S_cattr = O_named_match_cattr.S_grp_val), "@")) {
-			        S_attr_ret = String.format("[%s*=%s]", S_cattr.replace("@", ""), S_cvalue);
-				    }
-				 else if (StringUtils.equals(S_cattr, "text()")) {
-					 S_attr_ret = String.format(":contains(%s)", S_cvalue); 
+				O_retval_result.S_err_msg = S_err_msg;
+				return O_retval_result; 
+				}
+			 S_cattr = null;  //  initialization of attribute name for contains function
+			 if (((O_named_match_cattr = HS_named_groups.get("cattr")) != null) && 
+				StringUtils.startsWith((S_cattr = O_named_match_cattr.S_grp_val), "@")) {
+			    S_attr_ret = String.format("[%s*=%s]", S_cattr.replace("@", ""), S_cvalue);
+				}
+			 else if (StringUtils.equals(S_cattr, "text()")) {
+				 S_attr_ret = String.format(":contains(%s)", S_cvalue);  // jQuery required
 			     }
 		      }
 		else if (((O_named_match_starts_with = HS_named_groups.get("startsw")) != null) && ((S_starts_with_value = O_named_match_starts_with.S_grp_val) != null)) {
-				 S_cattr = null;
-				 if ((O_named_match_cvalue = HS_named_groups.get("cvalue")) != null) {  
-					 S_cvalue = O_named_match_cvalue.S_grp_val; 
-					 }
-				 else {
-				    S_cvalue = null;
+			 S_cvalue = null; // initialize attribute value for start-with function
+			 if ((O_named_match_cvalue = HS_named_groups.get("cvalue")) != null) {
+				S_cvalue = O_named_match_cvalue.S_grp_val; 
+			    }
+			if (S_cvalue == null) { // check attribute value for start-with function
+				S_err_msg = "starts-with attribute-value must not be null here.";
+				E_assert = new AssertionError(S_err_msg);
+				throw E_assert;	
+			    }
+			
+			 O_named_match_lquote = HS_named_groups.get("lquote");
+			 if (O_named_match_lquote != null) {
+				S_lquote = O_named_match_lquote.S_grp_val;
+				}
+			 else {
+				S_lquote = null;
+				}
+			if (StringUtils.isEmpty(S_lquote)) {
+			   S_err_msg = "Invalid xpath: \"" + S_xpath_substr + "\"" + LF +
+				    	   "starts-with value must start with a quotation character (' or \").";
+			   if (PI_B_throw_errs) {
+				  E_ill_arg = new IllegalArgumentException(S_err_msg);
+				  throw E_ill_arg;
+				  }
+			   O_retval_result.S_err_msg = S_err_msg;
+			   return O_retval_result;
+			   }
+			O_named_match_rquote = HS_named_groups.get("rquote");
+			if (O_named_match_rquote != null) {
+			   S_rquote = O_named_match_rquote.S_grp_val;
+			   }
+			else {
+			   S_rquote = null;
+			   }
+			if (!S_lquote.equals(S_rquote)) {
+				S_err_msg = "Invalid xpath: \"" + S_xpath_substr + "\"" + LF +
+				"Different left quote (" + S_lquote + ") and right quote (" + S_rquote + ") around starts-with value \'" + S_cvalue +  "\'";
+				if (PI_B_throw_errs) {
+				    E_ill_arg = new IllegalArgumentException(S_err_msg);
+				    throw E_ill_arg;
 				    }
-				 if (((O_named_match_cattr = HS_named_groups.get("cattr")) != null) && 
-				       StringUtils.startsWith((S_cattr = O_named_match_cattr.S_grp_val), "@")) {
-			        S_attr_ret = String.format("[%s^=%s]", S_cattr.replace("@", ""), S_cvalue);
-				    }
-				 else if (StringUtils.equals(S_cattr, "text()")) {
-					 S_attr_ret = String.format(":contains(%s)", S_cvalue);  // TODO
+				O_retval_result.S_err_msg = S_err_msg;
+				return O_retval_result; 
+				}
+			 S_cattr = null;
+			 if (((O_named_match_cattr = HS_named_groups.get("cattr")) != null) && 
+				StringUtils.startsWith((S_cattr = O_named_match_cattr.S_grp_val), "@")) {
+			    S_attr_ret = String.format("[%s^=%s]", S_cattr.replace("@", ""), S_cvalue);
+				}
+			 else if (StringUtils.equals(S_cattr, "text()")) {
+				S_err_msg = ConversionResult.ERR_MSG_UNSUPPORTED_XPATH + "starts-with(text())";
+				if (PI_B_throw_errs) {
+				  E_ill_arg = new IllegalArgumentException(S_err_msg);
+				  throw E_ill_arg;
+				  }
+			    O_retval_result.S_err_msg = S_err_msg;
+			    return O_retval_result; 
 			     }
 		      }
 		else {
