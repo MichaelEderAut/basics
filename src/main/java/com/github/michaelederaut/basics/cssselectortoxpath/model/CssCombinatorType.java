@@ -8,11 +8,20 @@ package com.github.michaelederaut.basics.cssselectortoxpath.model;
  * <a href="https://css-selector-to-xpath.appspot.com">Samuel Rosenthal - Css Selector to Xpath</a>
  *
  */
+
+import static com.github.michaelederaut.basics.xpath2cssselector.Cssify.FOLLOWING_SIBLING;
+
 public enum CssCombinatorType {
-	SPACE(' ',"//"), 
-	PLUS('+',"/following-sibling::*[1]/self::"),
-	GREATER_THAN('>',"/"),
-	TILDA('~',"/following-sibling::");
+	
+//	SPACE(' ',"//"), 
+//	PLUS('+',"/following-sibling::*[1]/self::"),
+//	GREATER_THAN('>',"/"),
+//	TILDA('~',"/following-sibling::");
+	
+	SPACE(' ', "//"), 
+	PLUS('+', "/" + FOLLOWING_SIBLING + "*[1]/self::"),
+	GREATER_THAN('>', "/"),
+	TILDE('~', "/" + FOLLOWING_SIBLING);
 	
 	private char typeChar;
 	private String xpath;
@@ -46,7 +55,7 @@ public enum CssCombinatorType {
         	case ">": 
         		return GREATER_THAN;
         	case "~":  
-        		return TILDA;
+        		return TILDE;
         	default:
         		throw new IllegalArgumentException(unknownString);
 		}

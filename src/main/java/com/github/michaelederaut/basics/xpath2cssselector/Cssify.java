@@ -19,6 +19,11 @@ import com.github.michaelederaut.basics.RegexpUtils.NamedMatch;
  */
 public class Cssify {
 	
+	public static final String FOLLOWING_SIBLING = "following-sibling::";
+//	public static final String FOLLOWING_SIBLING_QM = java.util.regex.Pattern.quote(FOLLOWING_SIBLING); // like QuoteMeta() in perl5;
+	public static final String FOLLOWING_SIBLING_QM = FOLLOWING_SIBLING;
+	
+	
 	public static class ConversionResult {
 		
 		public static final String ERR_MSG_NULL_XPATH = "xpath argument must not be a null-string.";
@@ -26,11 +31,13 @@ public class Cssify {
 		public static final String ERR_MSG_UNSUPPORTED_XPATH        = "Unsupported Xpath: ";
 		public static final String ERR_MSG_INVALID_XPATH            = "Invalid Xpath: ";
 		public static final String ERR_MSG_INV_OR_UNSUPPORTED_XPATH = "Invalid or unsupported Xpath: ";
-		public String S_value;
-		public String S_err_msg;
+		
+		public String S_value            = null;
+		public String S_err_msg          = null;
+		public boolean B_requires_jquery = false;
 		 
 		public ConversionResult(final String PI_S_value) {
-			this(PI_S_value, (String)null);
+			this(PI_S_value, (String)null);  // error-message == null
 				return;
 			}
 		 
@@ -40,35 +47,30 @@ public class Cssify {
 	     }
 	}	
 	
+//protected static final HashMap<String, String> HS_sub_re = new HashMap<String, String>(){{
+//	put("tag",       "([a-zA-Z][a-zA-Z0-9]{0,10}|\\*)");
+//	put("attribute", "[.a-zA-Z_:][-\\w:.]*(\\(\\))?");
+//	put("value",     "\\s*[\\w/:][-/\\w\\s,:;.]*");
+//}};
+
+public static final String 	S_re_tag_named = "[a-zA-Z][a-zA-Z0-9]{0,10}";
+public static final String 	S_re_tag_generic = "\\*";
+public static final String 	S_re_tag = "(" + S_re_tag_named + "|" + S_re_tag_generic + ")";
+public static final String  S_re_attr_name = "[.a-zA-Z_:][-\\w:.]*(\\(\\))?";
+public static final String  S_re_attr_val  = "\\s*[\\w/:][-/\\w\\s,:;.]*";
+
 protected static final HashMap<String, String> HS_sub_re = new HashMap<String, String>(){{
-	put("tag",       "([a-zA-Z][a-zA-Z0-9]{0,10}|\\*)");
-	put("attribute", "[.a-zA-Z_:][-\\w:.]*(\\(\\))?");
-	put("value",     "\\s*[\\w/:][-/\\w\\s,:;.]*");
+	put("tag",       S_re_tag);
+	put("attribute", S_re_attr_name);
+	put("value",     S_re_attr_val);
 }};
 
-//static final String S_re_validation_parser =
-//    "({node}" + 
-//       "(" + // special case! id(idValue)
-//          "^id\\(({lquote}[\\\"\\']?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}[\\\"\\']?)\\)" +  
-//       "|" +
-//          "({nav}//?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
-//          "(\\[(" + //  [@id="foo"] and [text()="bar"]
-//             "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}[\\\"\\']?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}[\\\"\\']?)" +
-//          "|" + //  [contains(text(), "foo")] or [contains(@id, "bar")]
-//             "({contained}contains\\(({cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
-//          "|" + //  [starts-with(text(), "foo")] or [starts-with(@id, "bar")]
-//             "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
-//          ")\\])?" +
-//          "(\\[({nth}\\d+)\\])?" +
-//      ")" +
-//    ")"; // end of named pattern "node" 
- 
 static final String S_re_validation_parser =
     "({node}" + 
        "(" + // special case! id(idValue)
           "^id\\(({lquote}[\\\"\\']?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}[\\\"\\']?)\\)" +  
        "|" +
-          "({nav}//?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
+          "({nav}//?(?:" + FOLLOWING_SIBLING_QM + ")?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
           "(\\[(" + //  [@id="foo"] and [text()="bar"]
              "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}[\\\"\\']?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}[\\\"\\']?)" +
           "|" + //  [contains(text(), "foo")] or [contains(@id, "bar")]
@@ -159,9 +161,15 @@ public static ConversionResult FO_convert(
 			S_nav_ret = "";
 		    }
 		else {
-			if (((O_named_match_nav = HS_named_groups.get("nav")) != null) && (O_named_match_nav.S_grp_val == "//")) {
-				S_nav_ret = " ";
-			    }
+			S_nav_ret = " > ";
+			if (((O_named_match_nav = HS_named_groups.get("nav")) != null) && ((S_nav = O_named_match_nav.S_grp_val) != null)) {
+				if (S_nav.equals("//")) {
+				   S_nav_ret = " ";
+			       }
+				else if (S_nav.endsWith(FOLLOWING_SIBLING)) {
+					S_nav_ret = " + ";
+				    }
+			     }   
 			else {
 			    S_nav_ret = " > ";	
 			    }
@@ -343,6 +351,7 @@ public static ConversionResult FO_convert(
 				}
 			 else if (StringUtils.equals(S_cattr, "text()")) {
 				 S_attr_ret = String.format(":contains(%s)", S_cvalue);  // jQuery required
+				 O_retval_result.B_requires_jquery = true;
 			     }
 		      }
 		else if (((O_named_match_starts_with = HS_named_groups.get("startsw")) != null) && ((S_starts_with_value = O_named_match_starts_with.S_grp_val) != null)) {
@@ -410,11 +419,11 @@ public static ConversionResult FO_convert(
 		     }
 		
 		 if (((O_named_match_nth = HS_named_groups.get("nth")) != null) && ((S_nth = O_named_match_nth.S_grp_val) != null)) {
-			 if (S_nth.equals("last()")) {
-				 S_nth_ret  = String.format(":last-of-type");
-			    }
-			 else {
+			if (StringUtils.isNumeric(S_nth)) {
 			    S_nth_ret = String.format(":nth-of-type(%s)", S_nth);
+			    }
+			else {
+				S_nth_ret  = String.format(":last-of-type");
 			    }
 		     }
 		 else {
