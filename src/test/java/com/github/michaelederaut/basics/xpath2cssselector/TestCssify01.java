@@ -35,12 +35,11 @@ public class TestCssify01 {
 		    }
 		
 		O_conv_res_03 = null;
-		B_ok = true;
+		B_ok          = true;
 		S_xpath = "//div[id='xxy']";
 		O_conv_res_03 =  Cssify.FO_convert(S_xpath);
 		S_conv_value_03 = O_conv_res_03.S_value;
 		S_err_msg_03    = O_conv_res_03.S_err_msg;
 		System.out.println("conv_val_03: " + S_conv_value_03 + " - err_msg_03: " + S_err_msg_03);
-		
 	}	
 }

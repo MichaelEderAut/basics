@@ -410,7 +410,12 @@ public static ConversionResult FO_convert(
 		     }
 		
 		 if (((O_named_match_nth = HS_named_groups.get("nth")) != null) && ((S_nth = O_named_match_nth.S_grp_val) != null)) {
-			 S_nth_ret = String.format(":nth-of-type(%s)", S_nth);
+			 if (S_nth.equals("last()")) {
+				 S_nth_ret  = String.format(":last-of-type");
+			    }
+			 else {
+			    S_nth_ret = String.format(":nth-of-type(%s)", S_nth);
+			    }
 		     }
 		 else {
 			 S_nth_ret = "";
