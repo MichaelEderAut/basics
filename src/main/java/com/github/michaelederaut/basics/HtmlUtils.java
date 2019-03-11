@@ -3,7 +3,7 @@ package com.github.michaelederaut.basics;
 import regexodus.Pattern;
 
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
-import org.jsoup.safety.Whitelist;
+// import org.jsoup.safety.Whitelist;
 import org.w3c.dom.DOMException;
 
 import java.util.HashMap;
@@ -11,15 +11,15 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+// import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.stanbol.enhancer.engines.htmlextractor.impl.DOMBuilder;
+// import org.apache.stanbol.enhancer.engines.htmlextractor.impl.DOMBuilder;
 import org.dom4j.IllegalAddException;
-import org.dom4j.Node;
+// import org.dom4j.Node;
 import org.dom4j.dom.DOMDocument;
-import org.dom4j.dom.DOMElement;
+// import org.dom4j.dom.DOMElement;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
