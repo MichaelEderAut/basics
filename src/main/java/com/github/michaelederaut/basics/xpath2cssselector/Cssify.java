@@ -1,7 +1,7 @@
 package com.github.michaelederaut.basics.xpath2cssselector;
 
 import java.util.HashMap;
-import javax.xml.xpath.XPathException;
+// import javax.xml.xpath.XPathException;
 
 import         org.apache.commons.lang3.StringUtils;
 import static  org.apache.commons.lang3.StringUtils.LF;
@@ -44,8 +44,8 @@ public class Cssify {
 	    public ConversionResult(final String PI_S_value, final String PI_S_err_msg) {
 	    	this.S_value   = PI_S_value;
 	    	this.S_err_msg = PI_S_err_msg;
-	     }
-	}	
+	       }
+	   }	
 	
 //protected static final HashMap<String, String> HS_sub_re = new HashMap<String, String>(){{
 //	put("tag",       "([a-zA-Z][a-zA-Z0-9]{0,10}|\\*)");
@@ -65,22 +65,40 @@ protected static final HashMap<String, String> HS_sub_re = new HashMap<String, S
 	put("value",     S_re_attr_val);
 }};
 
+//static final String S_re_validation_parser =
+//    "({node}" + 
+//       "(" + // special case! id(idValue)
+//          "^id\\(({lquote}[\\\"\\']?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}[\\\"\\']?)\\)" +  
+//       "|" +
+//          "({nav}//?(?:" + FOLLOWING_SIBLING_QM + ")?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
+//          "(\\[(" + //  [@id="foo"] and [text()="bar"]
+//             "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}[\\\"\\']?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}[\\\"\\']?)" +
+//          "|" + //  [contains(text(), "foo")] or [contains(@id, "bar")]
+//             "({contained}contains\\(({cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
+//          "|" + //  [starts-with(text(), "foo")] or [starts-with(@id, "bar")]
+//             "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
+//          ")\\])?" +
+//          "(\\[({nth}\\d+|last\\(\\))\\])?" +
+//      ")" +
+//    ")"; // end of named pattern "node" 
+
 static final String S_re_validation_parser =
     "({node}" + 
        "(" + // special case! id(idValue)
-          "^id\\(({lquote}[\\\"\\']?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}[\\\"\\']?)\\)" +  
+          "^id\\(({lquote}['\"]?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}['\"]?)\\)" +  
        "|" +
           "({nav}//?(?:" + FOLLOWING_SIBLING_QM + ")?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
           "(\\[(" + //  [@id="foo"] and [text()="bar"]
-             "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}[\\\"\\']?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}[\\\"\\']?)" +
+             "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}['\"]?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}['\"]?)" +
           "|" + //  [contains(text(), "foo")] or [contains(@id, "bar")]
-             "({contained}contains\\(({cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
+             "({contained}contains\\(({cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}['\"]?)({cvalue}" + HS_sub_re.get("value") + ")({=rquote}['\"]?)\\))" +
           "|" + //  [starts-with(text(), "foo")] or [starts-with(@id, "bar")]
-             "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
+             "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}['\"]?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}['\"]?)\\))" +
           ")\\])?" +
           "(\\[({nth}\\d+|last\\(\\))\\])?" +
       ")" +
     ")"; // end of named pattern "node" 
+
 protected static final Pattern P_validation_parser = Pattern.compile(S_re_validation_parser);
 
 
