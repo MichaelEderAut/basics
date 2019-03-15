@@ -6,10 +6,11 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.EleType;
 import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.Elem;
+import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.ParsingState;
+
 import static org.apache.commons.lang3.StringUtils.LF;
 
 public class DomRootElements {
-	
 	/**
 	 * This class can be used to generate a node element in an <a href='https://www.guru99.com/xpath-selenium.html#3'><i>Absolute Xpath</i></a>.<br>
 	 * It  contains 2 attributes for the context node<ul>
@@ -91,6 +92,36 @@ public static int[] FAI_reduce_DOM_offset_vector (final DomOffset PI_AO_dom_offs
 	return AI_retval_DOM_offsets;
 }
 
+public static DomOffset[] FAO_create_DOM_offsets(final int PI_AI_DOM_offset_vector[]) {
+	DomOffset[] AO_retval_dom_offsets = null;
+	
+	if (PI_AI_DOM_offset_vector == null) {
+		return AO_retval_dom_offsets;
+	    }
+	
+	IllegalArgumentException E_ill_arg;
+	/* WebDriverException */ RuntimeException E_rt;
+	String S_msg_1, S_msg_2;
+	DomOffset O_dom_offset;
+	int i1, I_nbr_offsets_f1, I_offset_f0;
+	
+	I_nbr_offsets_f1 = PI_AI_DOM_offset_vector.length;
+	AO_retval_dom_offsets = new DomOffset[I_nbr_offsets_f1];
+	for (i1 = 0; i1 < I_nbr_offsets_f1; i1++) {
+		I_offset_f0 = PI_AI_DOM_offset_vector[i1];
+		if (I_offset_f0 < 0) {
+		   S_msg_1 = "Invalid negative offset: " + I_offset_f0 + " at index: " + i1;
+		   E_ill_arg = new IllegalArgumentException(S_msg_1);
+		   S_msg_2 = "Unable to init actual parameter of type array of \'" + DomOffset.class.getName() + "\'";
+		   E_rt = new RuntimeException(S_msg_2, E_ill_arg);
+		   throw E_rt;
+		   }
+		O_dom_offset = new DomOffset(I_offset_f0, null);
+		AO_retval_dom_offsets[i1] = O_dom_offset;
+	    }
+	return AO_retval_dom_offsets;
+    }
+
 public static StringBuilder FS_get_context_node (
 		   final int PI_AI_DOM_offset_vector[]) {
 	StringBuilder SB_retval_document_root;
@@ -147,7 +178,7 @@ public static StringBuilder FS_get_context_node (
     		AO_dom_nav_elems = null;
     	    }
     	I_nbr_ups_f1 = 0;
-		I_nbr_offsets_orig_f1 = PI_AI_DOM_offset_vector.length;
+		I_nbr_offsets_orig_f1 = AI_DOM_offset_vector.length;
 		if (I_idx_max_dom_nav_f1 > 0) {
 			I_idx_dom_nav_f0 = 0;
 			O_dom_navigator_pending = AO_dom_nav_elems.get(I_idx_dom_nav_f0);
