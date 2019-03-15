@@ -8,6 +8,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 import static com.github.michaelederaut.basics.xpath2cssselector.Cssify.S_re_attr_val;
 import com.github.michaelederaut.basics.RegexpUtils;
+import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.ParsingState;
 
 import regexodus.Pattern;
 
@@ -29,8 +30,10 @@ public class DomNavigator {
 	boolean B_multi = false; // false: returns a single DOM element
 	                 // true: returns an array of DOM elements
 	public Stack<Elem> AO_ele_types = new Stack<Elem>();
+	public XpathParsingFailure O_xpath_parsing_failure = null;
 	
-	protected enum ParsingState {init, dot1, dot2, slash, initialSlash, doubleSlash, attrSingle, attrMulti, invalid};
+	
+	public enum ParsingState {init, dot1, dot2, slash, initialSlash, doubleSlash, attrSingle, attrMulti, invalid};
 	
 	public enum EleType {
 		ups(int.class, false), 
@@ -77,7 +80,31 @@ public class DomNavigator {
 	        }
 	    }
 	
-	protected static String FS_id_to_find(
+	public static class XpathParsingFailure {
+		int           I_pos_f0 = -1;
+		ParsingState  E_parsing_state = ParsingState.init;
+		String        S_msg = null; 
+		Character     C_actually_found = null;
+		
+		public XpathParsingFailure () {
+			super();
+			return;
+		}
+		
+		public XpathParsingFailure (
+				final int PI_I_pos_f0,
+				final ParsingState PI_E_parsing_state,
+				final String PI_S_msg,
+				final Character   PI_C_actually_found) {
+			this.I_pos_f0        = PI_I_pos_f0;
+			this.E_parsing_state = PI_E_parsing_state;
+			this.S_msg            = PI_S_msg;
+			this.C_actually_found = PI_C_actually_found;
+			return;
+		    }
+	    }
+	
+	protected  static  String FS_id_to_find(
 			final String PI_S_xpath,
 			final MutableInt PO_I_chars_consumed) {
 		
@@ -88,6 +115,7 @@ public class DomNavigator {
 			return S_retval;
 		    }
 		
+		AssertionError E_assert;
 		IllegalArgumentException E_ill_arg;
 		int I_chars_consumed = 0;
 		char C_xp;
@@ -102,8 +130,13 @@ public class DomNavigator {
 		else if (C_xp == '*') {
 			O_grp_match_res = RegexpUtils.FO_match(PI_S_xpath, P_attr_id);
 		    }
-		if (O_grp_match_res == null) {
+		else {
 			return S_retval;
+		    }
+		if (O_grp_match_res == null) {
+			S_err_msg = "Regexp-result must not be null here";
+			E_assert = new AssertionError(S_err_msg);
+			throw E_assert;
 		    }
 		if (O_grp_match_res.I_array_size_f1 < 4) {
 			return S_retval;
@@ -237,6 +270,11 @@ public class DomNavigator {
 			    	E_parsing_state = ParsingState.initialSlash; 
 			        }
 				 else {
+					O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+							i1,
+							E_parsing_state,
+							"xpath does't start with one of the following: . /",
+							C_xp);
 					E_parsing_state = ParsingState.invalid; 
 					break LOOP_CHARS;
 					}}
@@ -245,8 +283,13 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.doubleSlash; 
 			      }
 			   else {
-				 E_parsing_state = ParsingState.invalid; 
-				 break LOOP_CHARS;  
+				   O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+							i1,
+							E_parsing_state,
+							"Initial forward slash must be followed by another /",
+							C_xp);
+				  E_parsing_state = ParsingState.invalid; 
+				  break LOOP_CHARS;  
 			     }
 		      }
 		   else if (E_parsing_state == ParsingState.doubleSlash) {
@@ -254,10 +297,8 @@ public class DomNavigator {
 				  S_remaining_xp = PI_S_xpath.subSequence(i1, I_len_xpath_f1).toString();
 			      }
 			   if ((S_value = DomNavigator.FS_id_to_find(S_remaining_xp, O_nbr_chars_consumed)) != null) {
-			  
 				  I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
 				  i1 += I_nbr_chars_consumed_f1;
-				
 				  O_retval_dom_navi.FV_add(EleType.id, S_value);
 				  E_parsing_state = ParsingState.attrSingle;
 			      }
@@ -272,6 +313,11 @@ public class DomNavigator {
 				      }
 			      }
 			   else {
+				   O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+						i1,
+						E_parsing_state,
+						"Double slash not followed by one of the following: class, id, tag",
+						C_xp);
 				 E_parsing_state = ParsingState.invalid; 
 				 break LOOP_CHARS;  
 			     }
@@ -282,11 +328,21 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.slash; 
 				  }
 			   else {
+				  O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+						i1,
+						E_parsing_state,
+						"Attribute id, must be followed by a / or <EOI>.",
+						C_xp);
 				  E_parsing_state = ParsingState.invalid; 
 				  break LOOP_CHARS;  
 			      }
 		      }
 		   else if (E_parsing_state == ParsingState.attrMulti) {
+			    O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+						i1,
+						E_parsing_state,
+						"Multi-selector (class, tag) must be followed by <EOI>.",
+						C_xp);
 		       E_parsing_state = ParsingState.invalid; 
 			   break LOOP_CHARS; 	
 		       }
@@ -299,6 +355,11 @@ public class DomNavigator {
 				   	E_parsing_state = ParsingState.slash; 
 				    }
 				else {
+					O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+						i1,
+						E_parsing_state,
+						"A dot must be followed by another dot . or a forward slash /",
+						C_xp);
 				 	E_parsing_state = ParsingState.invalid; 
 				    break LOOP_CHARS;
 				    }}
@@ -307,6 +368,13 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.slash; 
 				  }
 			   else {
+				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+						i1,
+						E_parsing_state,
+						"A double dot .. must be followed by a forward slash /",
+						C_xp);
+				 	E_parsing_state = ParsingState.invalid; 
+				   ;
 				 E_parsing_state = ParsingState.invalid; 
 				 break LOOP_CHARS;
 				 }
@@ -319,6 +387,11 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.doubleSlash;
 				  }
 			  else { 
+				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+					i1,
+					E_parsing_state,
+					"A forward slash / must be followed by a . or anoter forward slash /",
+					C_xp);
 			     E_parsing_state = ParsingState.invalid; 
 				 break LOOP_CHARS;
 				 }
@@ -335,6 +408,13 @@ public class DomNavigator {
 			 B_convertible_to_dom = true;
 			 }
 		 else {
+			  if (O_retval_dom_navi.O_xpath_parsing_failure == null) {
+				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				 i1,
+				 E_parsing_state,
+				 "Unexpected end of input.",
+				 (Character)null); 
+			  }
 	         O_retval_dom_navi.AO_ele_types.clear();
 		 }
 		return O_retval_dom_navi;
