@@ -1,21 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-<!-- <groupId>tools.exerc.basics</groupId> -->
- <groupId>com.github.michaelederaut</groupId>
+  <groupId>com.github.michaelederaut</groupId>
   <artifactId>basics</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-
+  
   <name>basics</name>
-  <url>http://maven.apache.org</url>
-
-  <properties>
+  <description>Basic Tools for Selenium WebDriver 3 and other projects</description>
+ 
+ <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <java.home>{$env.JAVA_HOME}</java.home>
   </properties>
-
- <build>
+  
+<build>
    <!--  <sourceDirectory>src</sourceDirectory> -->
     <plugins>
       <plugin>
@@ -60,6 +60,21 @@
     </plugins>
   </build>
 
+<repositories>
+ <repository>
+      <id>RedHat GA</id>
+      <name>Redhat alternative to Maven-Central</name>
+      <url>https://maven.repository.redhat.com/ga/</url>
+    </repository>
+    
+    <!--  <repository>
+       <id>in-project</id>
+       <name>In Project Repo</name>
+       <url>file://${java.home}/lib/jrt-fs.jar</url>
+    </repository> -->
+    
+</repositories>
+    
   <dependencies>
     <dependency>
     <groupId>junit</groupId>
@@ -135,6 +150,18 @@
     <groupId>org.dom4j</groupId>
     <artifactId>dom4j</artifactId>
     <version>2.1.0</version>
+ <!--   <exclusions>
+     <exclusion>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      </exclusion>
+    </exclusions> -->
+</dependency>
+
+<dependency>
+    <groupId>dom4j</groupId>
+    <artifactId>dom4j</artifactId>
+ <version>1.6.1.redhat-7</version>
 </dependency>
 
 <!-- bcs of DOMBuilder.jsoup2DOM(...) -->
@@ -158,11 +185,13 @@
     <artifactId>regexodus</artifactId>
     <version>0.1.10</version>
 </dependency>
+
  <dependency>
    <groupId>org.apache.logging.log4j</groupId>
    <artifactId>log4j-core</artifactId>
    <version>2.8</version>
    </dependency>
+   
 <dependency>
    <groupId>org.apache.logging.log4j</groupId>
    <artifactId>log4j-api</artifactId>
@@ -178,11 +207,11 @@
  -->
 
 <!-- https://mvnrepository.com/artifact/com.sun.xml.parsers/jaxp-ri -->
- <dependency>
+<!--  <dependency>
     <groupId>com.sun.xml.parsers</groupId>
     <artifactId>jaxp-ri</artifactId>
     <version>1.4.5</version>
-</dependency> 
+</dependency>  -->
 
 <!-- because of JOOX start -->
 <dependency>
@@ -200,6 +229,13 @@
     <scope>compile</scope>
 </dependency> -->
 <!-- because of JOOX end -->
+
+<!-- added bcs of Jigsaw - deprecated -->
+<dependency>
+    <groupId>com.sun.activation</groupId>
+    <artifactId>javax.activation</artifactId>
+    <version>1.2.0</version>
+</dependency>
 
 </dependencies>
 </project>
