@@ -6,7 +6,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.EleType;
 import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.Elem;
-import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.ParsingState;
+// import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.ParsingState;
 
 import static org.apache.commons.lang3.StringUtils.LF;
 

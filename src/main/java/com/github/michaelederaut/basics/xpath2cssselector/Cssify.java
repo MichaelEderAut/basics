@@ -10,6 +10,7 @@ import regexodus.Pattern;
 import com.github.michaelederaut.basics.RegexpUtils;
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 import com.github.michaelederaut.basics.RegexpUtils.NamedMatch;
+import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.XpathParsingFailure;
 
 /**
  * 
@@ -36,17 +37,47 @@ public class Cssify {
 		public String S_err_msg          = null;
 		public boolean B_requires_jquery = false;
 		 
-		public ConversionResult(final String PI_S_value) {
-			this(PI_S_value, (String)null);  // error-message == null
+		public ConversionResult(final String PI_S_css_sel) {
+			this(PI_S_css_sel, (String)null);  // error-message == null
 				return;
 			}
 		 
-	    public ConversionResult(final String PI_S_value, final String PI_S_err_msg) {
-	    	this.S_value   = PI_S_value;
+	    public ConversionResult(final String PI_S_css_sel, final String PI_S_err_msg) {
+	    	this.S_value   = PI_S_css_sel;
 	    	this.S_err_msg = PI_S_err_msg;
 	       }
 	   }	
 	
+	public static class DomNavExtendedConversionResult extends ConversionResult {
+		DomNavigator O_dom_navgator = null;
+		
+		public DomNavExtendedConversionResult(final String PI_S_css_sel) {
+			super(PI_S_css_sel);
+			return;
+		    }
+		public DomNavExtendedConversionResult(final String PI_S_css_sel, final String PI_S_err_msg) {
+			super(PI_S_css_sel, PI_S_err_msg);
+			return;
+		    }
+		public DomNavExtendedConversionResult(
+				final String PI_S_css_sel, 
+				final String PI_S_err_msg, 
+				final DomNavigator PI_O_dom_nav) {
+			super(PI_S_css_sel, PI_S_err_msg);
+			this.O_dom_navgator = PI_O_dom_nav;
+			return;
+		    }
+		
+		public DomNavExtendedConversionResult(
+				final String PI_S_css_sel, 
+				final String PI_S_err_msg,
+				final String PI_S_xpath) {
+			super(PI_S_css_sel, PI_S_err_msg);
+			this.O_dom_navgator = DomNavigator.FO_create(PI_S_xpath);
+			return;
+		    }
+
+	}
 //protected static final HashMap<String, String> HS_sub_re = new HashMap<String, String>(){{
 //	put("tag",       "([a-zA-Z][a-zA-Z0-9]{0,10}|\\*)");
 //	put("attribute", "[.a-zA-Z_:][-\\w:.]*(\\(\\))?");
@@ -64,23 +95,6 @@ protected static final HashMap<String, String> HS_sub_re = new HashMap<String, S
 	put("attribute", S_re_attr_name);
 	put("value",     S_re_attr_val);
 }};
-
-//static final String S_re_validation_parser =
-//    "({node}" + 
-//       "(" + // special case! id(idValue)
-//          "^id\\(({lquote}[\\\"\\']?)({idvalue}" + HS_sub_re.get("value") + ")({rquote}[\\\"\\']?)\\)" +  
-//       "|" +
-//          "({nav}//?(?:" + FOLLOWING_SIBLING_QM + ")?)({tag}" + HS_sub_re.get("tag") + ")" +  // e.g. the tag //div
-//          "(\\[(" + //  [@id="foo"] and [text()="bar"]
-//             "({matched}({mattr}\\@?" + HS_sub_re.get("attribute") + ")\\=({=lquote}[\\\"\\']?)({mvalue}" + HS_sub_re.get("value") + "))({=rquote}[\\\"\\']?)" +
-//          "|" + //  [contains(text(), "foo")] or [contains(@id, "bar")]
-//             "({contained}contains\\(({cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
-//          "|" + //  [starts-with(text(), "foo")] or [starts-with(@id, "bar")]
-//             "({startsw}starts\\-with\\(({=cattr}\\@?" + HS_sub_re.get("attribute") + "),\\s*({=lquote}[\\\"\\']?)({=cvalue}" + HS_sub_re.get("value") + ")({=rquote}[\\\"\\']?)\\))" +
-//          ")\\])?" +
-//          "(\\[({nth}\\d+|last\\(\\))\\])?" +
-//      ")" +
-//    ")"; // end of named pattern "node" 
 
 static final String S_re_validation_parser =
     "({node}" + 
@@ -113,7 +127,22 @@ public static ConversionResult FO_convert(
 
 public static ConversionResult FO_convert(
 		final String PI_S_xpath,
-		final boolean PI_B_throw_errs) {
+		final boolean PI_B_throw_errs
+		) {
+	
+	ConversionResult O_retval_conversion_result;
+	   O_retval_conversion_result = FO_convert(
+			   PI_S_xpath,
+			   PI_B_throw_errs,
+			   false);  // don't try to convert to DOM path first
+	   
+	   return O_retval_conversion_result;
+}
+
+public static ConversionResult FO_convert(
+		final String PI_S_xpath,
+		final boolean PI_B_throw_errs,
+		final boolean PI_B_try_dom_path) {
 	
 	IllegalArgumentException E_ill_arg;
 	// XPathException           E_xpath;
@@ -126,11 +155,12 @@ public static ConversionResult FO_convert(
 	    O_named_match_lquote, O_named_match_matched, 
 	    O_named_match_mattr, O_named_match_mvalue, O_named_match_nav, O_named_match_node, 
 	    O_named_match_nth, O_named_match_rquote, O_named_match_tag;
+	DomNavigator O_dom_navigator;
 	String S_err_msg, S_xpath_substr, S_diagnostic_string,
 	       S_css_ret, S_attr_ret, S_cattr /* contains*/, S_contained_value, S_cvalue, S_idvalue, S_lquote, S_rquote,
-	       S_matched, S_mattr, S_mvalue, S_nav, S_nav_ret, S_node, S_node_css, S_nth, S_nth_ret, S_starts_with_value, S_tag, S_tag_ret;
+	       S_matched, S_mattr, S_mvalue, S_nav, S_nav_ret, S_node, S_node_css, S_nth, S_nth_ret, S_starts_with_value, S_tag, S_tag_ret,
+	       S_dom_path;
 	int I_len_xpath_f1, I_pos_f0;
-	
 	
 	ConversionResult O_retval_result = new ConversionResult((String)null);
 	
@@ -140,13 +170,21 @@ public static ConversionResult FO_convert(
 		if (PI_B_throw_errs) {
 			E_ill_arg = new IllegalArgumentException(S_err_msg);
 			throw E_ill_arg;
-		}
+		    }
 		return O_retval_result;
 	    }
 	
+	S_css_ret = "";
+	if (PI_B_try_dom_path) {
+		O_dom_navigator = DomNavigator.FO_create(PI_S_xpath);
+		if (O_dom_navigator.O_xpath_parsing_failure.S_msg == null) {
+			O_retval_result = new DomNavExtendedConversionResult(S_css_ret, (String)null, O_dom_navigator);
+			return O_retval_result;
+		    }
+	     }
 	I_pos_f0 = 0;
 	I_len_xpath_f1 = PI_S_xpath.length();
-	S_css_ret = "";
+	
 	LOOP_XPATH_CHARS: while (I_pos_f0 < I_len_xpath_f1) {
 		S_attr_ret = "";
 		S_xpath_substr = PI_S_xpath.substring(I_pos_f0);

@@ -28,13 +28,13 @@ public class CssifyCached {
 		}
 		
 		public ConversionResults() {
-			 this( ConversionResults.I_init_capacity);
+			 this(ConversionResults.I_init_capacity);
 		     }
 		
 		public ConversionResults(final int PI_I_capacity) {
 			super(PI_I_capacity < I_init_capacity ? PI_I_capacity : I_init_capacity, (float)0.75, true); // true access-order
 			I_max_nbr_elements = PI_I_capacity;
-		    }	
+		    }
 	}
 
 	public CssifyCached() {
