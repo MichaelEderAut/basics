@@ -9,6 +9,7 @@ public class CssifyCached {
 	
 	   	public static final int I_max_nbr_elements_dflt = 2047;
 		public        int I_max_nbr_elements;
+		public        boolean B_try_dom_path;
 		ConversionResults HS_conversion_res;
 		
 	
@@ -35,14 +36,23 @@ public class CssifyCached {
 			super(PI_I_capacity < I_init_capacity ? PI_I_capacity : I_init_capacity, (float)0.75, true); // true access-order
 			I_max_nbr_elements = PI_I_capacity;
 		    }
-	}
+	 }
 
 	public CssifyCached() {
-		this(I_max_nbr_elements_dflt);
+		this(I_max_nbr_elements_dflt, false); // don't try to convert to DOM path first by default
+	    }
+	
+	public CssifyCached(final boolean PI_B_try_dom_path) {
+		this(I_max_nbr_elements_dflt, PI_B_try_dom_path);
+	    }
+	
+	public CssifyCached(final int  PI_I_max_nbr_elements) {
+		this(PI_I_max_nbr_elements, false); // don't try to convert to DOM path first by default
 	    }
 	
 	public CssifyCached(
-			final int    PI_I_max_nbr_elements) {
+			final int  PI_I_max_nbr_elements,
+			final boolean PI_B_try_dom_path) {
 		
 		this.I_max_nbr_elements = PI_I_max_nbr_elements;
 		this.HS_conversion_res = new ConversionResults(PI_I_max_nbr_elements);
@@ -51,10 +61,10 @@ public class CssifyCached {
 	
 	public ConversionResult FO_convert(
 			final String PI_S_xpath) {
-	ConversionResult O_retval_conversion_result;
+	   ConversionResult O_retval_conversion_result;
 	
-	O_retval_conversion_result = this.FO_convert(PI_S_xpath, true);
-	return O_retval_conversion_result;
+	   O_retval_conversion_result = this.FO_convert(PI_S_xpath, true);
+	   return O_retval_conversion_result;
 	}
 	
 	public ConversionResult FO_convert(
@@ -74,10 +84,9 @@ public class CssifyCached {
 			return O_retval_conv_res;
 		    }
 		
-		O_retval_conv_res = Cssify.FO_convert(PI_S_xpath, PI_B_throw_errs);
+		O_retval_conv_res = Cssify.FO_convert(PI_S_xpath, PI_B_throw_errs, this.B_try_dom_path);
 	    this.HS_conversion_res.put(PI_S_xpath, O_retval_conv_res);
 		
 		return O_retval_conv_res;
 	}
-	
 }
