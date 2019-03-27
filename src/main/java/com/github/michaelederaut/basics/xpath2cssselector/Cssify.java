@@ -49,7 +49,7 @@ public class Cssify {
 	   }	
 	
 	public static class DomNavExtendedConversionResult extends ConversionResult {
-		DomNavigator O_dom_navgator = null;
+		public DomNavigator O_dom_navgator = null;
 		
 		public DomNavExtendedConversionResult(final String PI_S_css_sel) {
 			super(PI_S_css_sel);
@@ -57,6 +57,18 @@ public class Cssify {
 		    }
 		public DomNavExtendedConversionResult(final String PI_S_css_sel, final String PI_S_err_msg) {
 			super(PI_S_css_sel, PI_S_err_msg);
+			return;
+		    }
+		public DomNavExtendedConversionResult(
+			final ConversionResult PI_O_conv_res) {
+			    this(PI_O_conv_res.S_value, PI_O_conv_res.S_err_msg, (DomNavigator)null);
+			return;
+		    }
+		public DomNavExtendedConversionResult(
+				final ConversionResult PI_O_conv_res,
+				final DomNavigator PI_O_dom_nav) {
+			super(PI_O_conv_res.S_value, PI_O_conv_res.S_err_msg);
+			this.O_dom_navgator = PI_O_dom_nav;
 			return;
 		    }
 		public DomNavExtendedConversionResult(
@@ -121,9 +133,9 @@ public static ConversionResult FO_convert(
 	
 	ConversionResult O_retval_conversion_result;
 	
-	O_retval_conversion_result = FO_convert(PI_S_xpath, true);
+	O_retval_conversion_result = FO_convert(PI_S_xpath, true); // throw errors by default
 	return O_retval_conversion_result;
-}
+    }
 
 public static ConversionResult FO_convert(
 		final String PI_S_xpath,
@@ -134,7 +146,7 @@ public static ConversionResult FO_convert(
 	   O_retval_conversion_result = FO_convert(
 			   PI_S_xpath,
 			   PI_B_throw_errs,
-			   false);  // don't try to convert to DOM path first
+			   false);  // don't try to convert to DOM path first by default
 	   
 	   return O_retval_conversion_result;
 }
@@ -160,7 +172,7 @@ public static ConversionResult FO_convert(
 	       S_css_ret, S_attr_ret, S_cattr /* contains*/, S_contained_value, S_cvalue, S_idvalue, S_lquote, S_rquote,
 	       S_matched, S_mattr, S_mvalue, S_nav, S_nav_ret, S_node, S_node_css, S_nth, S_nth_ret, S_starts_with_value, S_tag, S_tag_ret,
 	       S_dom_path;
-	int I_len_xpath_f1, I_pos_f0;
+	int I_len_xpath_f1, I_pos_f0, I_nbr_dom_navi_elems_f1;
 	
 	ConversionResult O_retval_result = new ConversionResult((String)null);
 	
@@ -177,7 +189,8 @@ public static ConversionResult FO_convert(
 	S_css_ret = "";
 	if (PI_B_try_dom_path) {
 		O_dom_navigator = DomNavigator.FO_create(PI_S_xpath);
-		if (O_dom_navigator.O_xpath_parsing_failure.S_msg == null) {
+		I_nbr_dom_navi_elems_f1 = O_dom_navigator.AO_ele_types.size();
+		if (I_nbr_dom_navi_elems_f1 > 0) {
 			O_retval_result = new DomNavExtendedConversionResult(S_css_ret, (String)null, O_dom_navigator);
 			return O_retval_result;
 		    }
@@ -490,8 +503,9 @@ public static ConversionResult FO_convert(
 		 I_pos_f0 += S_node.length();
 	     }
 	O_retval_result.S_value = S_css_ret;
+	if (PI_B_try_dom_path) {
+		 O_retval_result = new DomNavExtendedConversionResult(O_retval_result);
+	     }
 	return O_retval_result;
     };
 }
-
-// TODO
