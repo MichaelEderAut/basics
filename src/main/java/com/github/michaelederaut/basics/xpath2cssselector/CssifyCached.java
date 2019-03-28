@@ -55,6 +55,7 @@ public class CssifyCached {
 			final boolean PI_B_try_dom_path) {
 		
 		this.I_max_nbr_elements = PI_I_max_nbr_elements;
+		this.B_try_dom_path     = PI_B_try_dom_path;
 		this.HS_conversion_res = new ConversionResults(PI_I_max_nbr_elements);
 		return;
 	    }
@@ -63,7 +64,7 @@ public class CssifyCached {
 			final String PI_S_xpath) {
 	   ConversionResult O_retval_conversion_result;
 	
-	   O_retval_conversion_result = this.FO_convert(PI_S_xpath, true);
+	   O_retval_conversion_result = this.FO_convert(PI_S_xpath, true); // throw errs == true
 	   return O_retval_conversion_result;
 	}
 	
