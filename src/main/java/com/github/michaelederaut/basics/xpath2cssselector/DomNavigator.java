@@ -103,7 +103,15 @@ public class DomNavigator {
 			return;
 		    }
 	    }
-	
+	/**
+	 * accepts<ul>
+	 * <li>long form: <tt>*[@id='foo']</tt></li>
+	 * <li>or short: form <tt>id('bar')</tt></li></ul>
+	 * 
+	 * @param PI_S_xpath String
+	 * @param PO_I_chars_consumed MubableInt
+	 * @return String <i>foo</i> resp. <i>bar</i> or null if there is no match.
+	 */
 	protected  static  String FS_id_to_find(
 			final String PI_S_xpath,
 			final MutableInt PO_I_chars_consumed) {
@@ -119,7 +127,7 @@ public class DomNavigator {
 		IllegalArgumentException E_ill_arg;
 		int I_chars_consumed = 0;
 		char C_xp;
-		String S_err_msg, S_consumed_chars, AS_numbered_groups[];
+		String S_err_msg, S_consumed_chars, AS_numbered_groups[], S_quote_left, S_quote_right;
 		
 		PO_I_chars_consumed.setValue(I_chars_consumed);
 		C_xp = PI_S_xpath.charAt(0);
@@ -143,6 +151,13 @@ public class DomNavigator {
 		   }
 		
 		AS_numbered_groups = O_grp_match_res.AS_numbered_groups;
+		S_quote_left  = AS_numbered_groups[1];
+		S_quote_right = AS_numbered_groups[3];
+		if (!S_quote_left.equals(S_quote_right)) {
+			// TODO warning message
+			return S_retval;
+		}
+		
 		S_consumed_chars = AS_numbered_groups[0]; 
 		I_chars_consumed = S_consumed_chars.length();
 		PO_I_chars_consumed.setValue(I_chars_consumed);
@@ -263,20 +278,26 @@ public class DomNavigator {
 		   C_xp = PI_S_xpath.charAt(i1);
 		   S_remaining_xp = null;
 		   if (E_parsing_state == ParsingState.init) {
-			     if (C_xp == '.') {
-				    E_parsing_state = ParsingState.dot1;
-					}
-			     else if (C_xp == '/') {
+			  if (C_xp == '.') {
+			      E_parsing_state = ParsingState.dot1;
+				  }
+			  else if (C_xp == '/') {
 			    	E_parsing_state = ParsingState.initialSlash; 
 			        }
-				 else {
-					O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
-							i1,
-							E_parsing_state,
-							"xpath does't start with one of the following: . /",
-							C_xp);
-					E_parsing_state = ParsingState.invalid; 
-					break LOOP_CHARS;
+			  else if ((C_xp == 'i') && (S_value = DomNavigator.FS_id_to_find(PI_S_xpath.toString(), O_nbr_chars_consumed)) != null) { 
+			     I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
+				 i1 += I_nbr_chars_consumed_f1;
+				 O_retval_dom_navi.FV_add(EleType.id, S_value);
+				 E_parsing_state = ParsingState.attrSingle;
+			     }
+			  else {
+				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+					i1,
+				    E_parsing_state,
+					"xpath does't start with one of the following: . /",
+					C_xp);
+				E_parsing_state = ParsingState.invalid; 
+				break LOOP_CHARS;
 					}}
 		   else if (E_parsing_state == ParsingState.initialSlash) {
 			   if (C_xp == '/') {
@@ -293,10 +314,10 @@ public class DomNavigator {
 			     }
 		      }
 		   else if (E_parsing_state == ParsingState.doubleSlash) {
-			   if (S_remaining_xp == null) {
+			   if (S_remaining_xp == null) { // only after a double slash // there is a need for a single usage of the variable S_remaining_xp
 				  S_remaining_xp = PI_S_xpath.subSequence(i1, I_len_xpath_f1).toString();
 			      }
-			   if ((S_value = DomNavigator.FS_id_to_find(S_remaining_xp, O_nbr_chars_consumed)) != null) {
+			   if ((C_xp == '*') && (S_value = DomNavigator.FS_id_to_find(S_remaining_xp, O_nbr_chars_consumed)) != null) {
 				  I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
 				  i1 += I_nbr_chars_consumed_f1;
 				  O_retval_dom_navi.FV_add(EleType.id, S_value);
