@@ -8,7 +8,7 @@ public class TestCssify02 {
 		CssifyCached O_cssify_cached;
 		DomNavigator O_dom_navi_01;
 		 Cssify.DomNavExtendedConversionResult  O_conv_res_01;
-	//	Cssify.ConversionResult O_conv_res_01;
+	
 		String S_xpath;
 		
 		O_cssify_cached = new CssifyCached(true); // try DOM
@@ -16,8 +16,8 @@ public class TestCssify02 {
 		S_xpath = "id('xxx')";
 		O_conv_res_01 = (Cssify.DomNavExtendedConversionResult)O_cssify_cached.FO_convert(S_xpath, true);
 		O_dom_navi_01 = O_conv_res_01.O_dom_navgator;
-		System.out.println("xpath: \'" + S_xpath + "\' c:ss_value: \'" + O_conv_res_01.S_value + "\' - err_msg_01: " +  O_conv_res_01.S_err_msg +
-				           "DOM navi size: " + O_dom_navi_01.AO_ele_types.size()  + 
+		System.out.println("xpath: \'" + S_xpath + "\' - css_value: \'" + O_conv_res_01.S_value + "\' - err_msg_01: " +  O_conv_res_01.S_err_msg + LF +
+				           "DOM_navi_size: " + O_dom_navi_01.AO_ele_types.size()  + 
 				           ((O_dom_navi_01.O_xpath_parsing_failure != null) ? 
 				        	  ("- msg: " + O_dom_navi_01.O_xpath_parsing_failure.S_msg +
 				        	  " - pos: " + O_dom_navi_01.O_xpath_parsing_failure.I_pos_f0 +

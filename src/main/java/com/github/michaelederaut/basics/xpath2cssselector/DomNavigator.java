@@ -68,9 +68,11 @@ public class DomNavigator {
 			T_ele_type = PI_E_type.T_content;
 			if (T_ele_type == int.class) {
 				this.O_content = (int)PI_O_content;
+				this.E_type = EleType.ups;
 			    }
 			else if (T_ele_type == String.class) {
 				this.O_content = (String)PI_O_content;
+				this.E_type = PI_E_type;
 			    }
 			else {
 				S_msg_1 = "Invalid content type: " + E_type.T_content.getName();
@@ -182,7 +184,7 @@ public class DomNavigator {
 		int I_chars_consumed = 0;
 		char C_xp;
 		boolean B_possible_clazz;
-		String S_err_msg, S_consumed_chars, AS_numbered_groups[];
+		String S_err_msg, S_consumed_chars, AS_numbered_groups[], S_quote_left, S_quote_right;
 		
 		PO_I_chars_consumed.setValue(I_chars_consumed);
 		C_xp = PI_S_xpath.charAt(0);
@@ -203,6 +205,12 @@ public class DomNavigator {
 			if (O_grp_match_res.I_array_size_f1 < 4) {
 			   return S_retval;
 			   }
+			S_quote_left = AS_numbered_groups[1];
+			S_quote_right = AS_numbered_groups[3];
+			if (!S_quote_left.equals(S_quote_right)) {
+				// TODO warning message
+				return S_retval;
+			    }
 			PO_B_by_clazz.setValue(true);
 			S_retval = AS_numbered_groups[2]; }
 		else { 
