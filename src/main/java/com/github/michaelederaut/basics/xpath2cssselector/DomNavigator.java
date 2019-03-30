@@ -30,7 +30,7 @@ public class DomNavigator {
 	boolean B_multi = false; // false: returns a single DOM element
 	                 // true: returns an array of DOM elements
 	public Stack<Elem> AO_ele_types = new Stack<Elem>();
-	public XpathParsingFailure O_xpath_parsing_failure = null;
+	public Xpath2DomParsingFailure O_xpath2dom_parsing_failure = null;
 	
 	
 	public enum ParsingState {init, dot1, dot2, slash, initialSlash, doubleSlash, attrSingle, attrMulti, invalid};
@@ -82,24 +82,24 @@ public class DomNavigator {
 	        }
 	    }
 	
-	public static class XpathParsingFailure {
+	public static class Xpath2DomParsingFailure {
 		int           I_pos_f0 = -1;
 		ParsingState  E_parsing_state = ParsingState.init;
 		String        S_msg = null; 
 		Character     C_actually_found = null;
 		
-		public XpathParsingFailure () {
+		public Xpath2DomParsingFailure () {
 			super();
 			return;
 		}
 		
-		public XpathParsingFailure (
+		public Xpath2DomParsingFailure (
 				final int PI_I_pos_f0,
 				final ParsingState PI_E_parsing_state,
 				final String PI_S_msg,
 				final Character   PI_C_actually_found) {
-			this.I_pos_f0        = PI_I_pos_f0;
-			this.E_parsing_state = PI_E_parsing_state;
+			this.I_pos_f0         = PI_I_pos_f0;
+			this.E_parsing_state  = PI_E_parsing_state;
 			this.S_msg            = PI_S_msg;
 			this.C_actually_found = PI_C_actually_found;
 			return;
@@ -299,7 +299,7 @@ public class DomNavigator {
 				 E_parsing_state = ParsingState.attrSingle;
 			     }
 			  else {
-				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				 O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 					i1,
 				    E_parsing_state,
 					"xpath does't start with one of the following: . /",
@@ -312,7 +312,7 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.doubleSlash; 
 			      }
 			   else {
-				   O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				   O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 							i1,
 							E_parsing_state,
 							"Initial forward slash must be followed by another /",
@@ -342,7 +342,7 @@ public class DomNavigator {
 				      }
 			      }
 			   else {
-				   O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				   O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"Double slash not followed by one of the following: class, id, tag",
@@ -357,7 +357,7 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.slash; 
 				  }
 			   else {
-				  O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				  O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"Attribute id, must be followed by a / or <EOI>.",
@@ -367,7 +367,7 @@ public class DomNavigator {
 			      }
 		      }
 		   else if (E_parsing_state == ParsingState.attrMulti) {
-			    O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+			    O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"Multi-selector (class, tag) must be followed by <EOI>.",
@@ -384,7 +384,7 @@ public class DomNavigator {
 				   	E_parsing_state = ParsingState.slash; 
 				    }
 				else {
-					O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+					O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"A dot must be followed by another dot . or a forward slash /",
@@ -397,7 +397,7 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.slash; 
 				  }
 			   else {
-				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				 O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"A double dot .. must be followed by a forward slash /",
@@ -416,7 +416,7 @@ public class DomNavigator {
 				  E_parsing_state = ParsingState.doubleSlash;
 				  }
 			  else { 
-				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+				 O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 					i1,
 					E_parsing_state,
 					"A forward slash / must be followed by a . or anoter forward slash /",
@@ -437,8 +437,8 @@ public class DomNavigator {
 			 B_convertible_to_dom = true;
 			 }
 		 else {
-			  if (O_retval_dom_navi.O_xpath_parsing_failure == null) {
-				 O_retval_dom_navi.O_xpath_parsing_failure = new XpathParsingFailure(
+			  if (O_retval_dom_navi.O_xpath2dom_parsing_failure == null) {
+				 O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 				 i1,
 				 E_parsing_state,
 				 "Unexpected end of input.",
