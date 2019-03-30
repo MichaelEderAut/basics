@@ -10,7 +10,7 @@ import regexodus.Pattern;
 import com.github.michaelederaut.basics.RegexpUtils;
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 import com.github.michaelederaut.basics.RegexpUtils.NamedMatch;
-import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.XpathParsingFailure;
+import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.Xpath2DomParsingFailure;
 
 /**
  * 
@@ -195,6 +195,9 @@ public static ConversionResult FO_convert(
 			return O_retval_result;
 		    }
 	     }
+	else {
+		O_dom_navigator = null; 
+	    }
 	I_pos_f0 = 0;
 	I_len_xpath_f1 = PI_S_xpath.length();
 	
@@ -504,7 +507,7 @@ public static ConversionResult FO_convert(
 	     }
 	O_retval_result.S_value = S_css_ret;
 	if (PI_B_try_dom_path) {
-		 O_retval_result = new DomNavExtendedConversionResult(O_retval_result);
+		 O_retval_result = new DomNavExtendedConversionResult(O_retval_result, O_dom_navigator);
 	     }
 	return O_retval_result;
     };

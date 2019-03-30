@@ -64,7 +64,7 @@ public class CssifyCached {
 			final String PI_S_xpath) {
 	   ConversionResult O_retval_conversion_result;
 	
-	   O_retval_conversion_result = this.FO_convert(PI_S_xpath, true); // throw errs == true
+	   O_retval_conversion_result = this.FO_convert(PI_S_xpath, true); // throw occurring errs == true
 	   return O_retval_conversion_result;
 	}
 	
