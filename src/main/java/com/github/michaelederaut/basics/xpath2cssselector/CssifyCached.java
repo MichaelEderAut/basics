@@ -10,6 +10,7 @@ public class CssifyCached {
 	   	public static final int I_max_nbr_elements_dflt = 2047;
 		public        int I_max_nbr_elements;
 		public        boolean B_try_dom_path;
+		public        boolean B_starts_from_top_level;
 		ConversionResults HS_conversion_res;
 		
 	
@@ -44,18 +45,29 @@ public class CssifyCached {
 	
 	public CssifyCached(final boolean PI_B_try_dom_path) {
 		this(I_max_nbr_elements_dflt, PI_B_try_dom_path);
+		return;
 	    }
 	
 	public CssifyCached(final int  PI_I_max_nbr_elements) {
 		this(PI_I_max_nbr_elements, false); // don't try to convert to DOM path first by default
+		return;
 	    }
 	
 	public CssifyCached(
 			final int  PI_I_max_nbr_elements,
 			final boolean PI_B_try_dom_path) {
+		this(PI_I_max_nbr_elements, PI_B_try_dom_path, false);  // don't start from top-level
+		return;
+	}
+	
+	public CssifyCached(
+			final int  PI_I_max_nbr_elements,
+			final boolean PI_B_try_dom_path,
+			final boolean PI_B_starts_from_top_level) {
 		
-		this.I_max_nbr_elements = PI_I_max_nbr_elements;
-		this.B_try_dom_path     = PI_B_try_dom_path;
+		this.I_max_nbr_elements     = PI_I_max_nbr_elements;
+		this.B_try_dom_path         = PI_B_try_dom_path;
+		this.B_starts_from_top_level = PI_B_starts_from_top_level;
 		this.HS_conversion_res = new ConversionResults(PI_I_max_nbr_elements);
 		return;
 	    }

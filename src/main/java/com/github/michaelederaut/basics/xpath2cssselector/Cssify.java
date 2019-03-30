@@ -88,13 +88,7 @@ public class Cssify {
 			this.O_dom_navgator = DomNavigator.FO_create(PI_S_xpath);
 			return;
 		    }
-
-	}
-//protected static final HashMap<String, String> HS_sub_re = new HashMap<String, String>(){{
-//	put("tag",       "([a-zA-Z][a-zA-Z0-9]{0,10}|\\*)");
-//	put("attribute", "[.a-zA-Z_:][-\\w:.]*(\\(\\))?");
-//	put("value",     "\\s*[\\w/:][-/\\w\\s,:;.]*");
-//}};
+	    }
 
 public static final String 	S_re_tag_named = "[a-zA-Z][a-zA-Z0-9]{0,10}";
 public static final String 	S_re_tag_generic = "\\*";
@@ -259,7 +253,7 @@ public static ConversionResult FO_convert(
 		   }
 		
 		if (((O_named_match_idvalue = HS_named_groups.get("idvalue")) != null) && ((S_idvalue = O_named_match_idvalue.S_grp_val) != null)) {
-		   O_named_match_lquote = HS_named_groups.get("lquote");  // s p e c i a l   c a s e!  id(idValue)
+		   O_named_match_lquote = HS_named_groups.get("lquote");  // s p e c i a l   c a s e !  id(idValue)
 		   if (O_named_match_lquote != null) {
 			  S_lquote = O_named_match_lquote.S_grp_val;
 			  }
