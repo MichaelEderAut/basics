@@ -157,7 +157,9 @@ public static StringBuilder FS_get_context_node (
 		         I_nbr_ups_f1, AI_DOM_offset_vector[];
 	    
 	    
-		StringBuilder SB_retval_document_root = new StringBuilder("document.body");
+		final String S_document_root = "document";
+		StringBuilder SB_retval_document_root = new StringBuilder(S_document_root + ".body");
+	
 		
 		if (PI_AI_DOM_offset_vector == null) {
 			AI_DOM_offset_vector = new int[0];
@@ -228,8 +230,19 @@ public static StringBuilder FS_get_context_node (
 				else {
 					S_xpath_originated_value = (String)O_xpath_originated_value;
 					switch (E_ele_type) {
-					case id: SB_retval_document_root.append(".getElementById('" + S_xpath_originated_value + "')"); 
-					   break;
+//					case id: SB_retval_document_root.append(".getElementById('" + S_xpath_originated_value + "')"); 
+//					   break;
+					case id: 
+						if (SB_retval_document_root.toString().endsWith(".body")) {
+						   SB_retval_document_root = new StringBuilder(S_document_root + ".getElementById('" + S_xpath_originated_value + "')");
+						   }
+						else {
+							S_msg_1 = "Element-type id is only valid at top level, but found" + LF +
+									  SB_retval_document_root.toString();
+							E_assert = new AssertionError(S_msg_1);
+					        throw E_assert;
+						    }
+						break;
 					case className: SB_retval_document_root.append(".getElementsByClassName('" + S_xpath_originated_value + "')");
 					   B_select_multiple_elements = true;
 					   break;

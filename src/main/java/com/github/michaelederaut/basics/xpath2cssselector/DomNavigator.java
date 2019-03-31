@@ -1,5 +1,6 @@
 package com.github.michaelederaut.basics.xpath2cssselector;
 
+import java.util.List;
 import java.util.Stack;
 
 import javax.xml.xpath.XPathException;
@@ -36,6 +37,7 @@ public class DomNavigator {
 	public Stack<Elem> AO_ele_types = new Stack<Elem>();
 	public Xpath2DomParsingFailure O_xpath2dom_parsing_failure = null;
 	
+	public enum StartsFromTopLevel {no, depends, yes};
 	
 	public enum ParsingState {init, dot1, dot2, slash, initialSlash, doubleSlash, attrSingle, attrMulti, invalid};
 	
@@ -109,6 +111,34 @@ public class DomNavigator {
 			return;
 		    }
 	    }
+	
+	protected static boolean FB_has_top_level_show_stopper (final List<Elem> PI_AO_elems_found_so_far) {
+		boolean B_retval_top_level_show_stopper = false;
+		
+		if (PI_AO_elems_found_so_far == null) {
+			return B_retval_top_level_show_stopper;
+		    }
+		
+		int I_nbr_elems_found_so_far_f1;
+		
+        if ((I_nbr_elems_found_so_far_f1 = PI_AO_elems_found_so_far.size()) == 0) {
+			return B_retval_top_level_show_stopper;
+		    }		
+		
+        int I_nbr_elems_found_so_far_f0;	
+		Elem O_elem_last_found;
+		EleType O_ele_type_last_found;
+		
+		I_nbr_elems_found_so_far_f0	= I_nbr_elems_found_so_far_f1 - 1;
+        O_elem_last_found = PI_AO_elems_found_so_far.get(I_nbr_elems_found_so_far_f0);
+        O_ele_type_last_found = O_elem_last_found.E_type;
+        if (O_ele_type_last_found != EleType.ups) {
+           B_retval_top_level_show_stopper = true;
+           }
+		
+		return B_retval_top_level_show_stopper;
+	}
+	
 	/**
 	 * accepts<ul>
 	 * <li>long form: <tt>*[@id='foo']</tt></li>
@@ -120,10 +150,13 @@ public class DomNavigator {
 	 */
 	protected  static  String FS_id_to_find(
 			final String PI_S_xpath,
+			final List<Elem> PI_AO_elems_found_so_far,
 			final MutableInt PO_I_chars_consumed) {
 		
 		RegexpUtils.GroupMatchResult O_grp_match_res;
 		XPathException E_xpath;
+		Elem O_elem_last_found;
+		EleType O_ele_type_last_found;
 		
 		String S_retval = null;
 		if (StringUtils.isEmpty(PI_S_xpath)) {
@@ -132,6 +165,8 @@ public class DomNavigator {
 		
 		AssertionError E_assert;
 		IllegalArgumentException E_ill_arg;
+		int I_nbr_elems_found_so_far_f1, I_nbr_elems_found_so_far_f0;
+		
 		int I_chars_consumed = 0;
 		char C_xp;
 		String S_err_msg, S_consumed_chars, AS_numbered_groups[], S_quote_left, S_quote_right;
@@ -168,6 +203,16 @@ public class DomNavigator {
 			return S_retval;
 		}
 		
+		if (PI_AO_elems_found_so_far != null) {
+//		   if ((I_nbr_elems_found_so_far_f1 = PI_AO_elems_found_so_far.size()) > 0) {
+//               I_nbr_elems_found_so_far_f0	= I_nbr_elems_found_so_far_f1 - 1;
+//               O_elem_last_found = PI_AO_elems_found_so_far.get(I_nbr_elems_found_so_far_f0);
+//               O_ele_type_last_found = O_elem_last_found.E_type; 
+//               if (O_ele_type_last_found != EleType.ups) {
+		    if (FB_has_top_level_show_stopper(PI_AO_elems_found_so_far)) {
+               return S_retval;
+               }
+		    }
 		S_consumed_chars = AS_numbered_groups[0]; 
 		I_chars_consumed = S_consumed_chars.length();
 		PO_I_chars_consumed.setValue(I_chars_consumed);
@@ -275,28 +320,40 @@ public class DomNavigator {
 		
 		DomNavigator O_retval_dom_navi;
 		
-		O_retval_dom_navi = FO_create(PI_S_xpath, false);
+		O_retval_dom_navi = FO_create(PI_S_xpath, StartsFromTopLevel.depends);
 		return O_retval_dom_navi;
 	}
 	
 	public static DomNavigator FO_create(
 			final CharSequence PI_S_xpath, 
-			final boolean PI_B_starts_from_top_level) {
-		MutableInt O_nbr_chars_consumed;
-		MutableBoolean B_is_clazz;  // true: //*[class='foo']  - false: tag //bar
-		int I_len_xpath_f1, I_nbr_chars_consumed_f1;
-		char C_xp;
-		String S_remaining_xp, S_value;
-		boolean B_convertible_to_dom;
+			final StartsFromTopLevel PI_E_starts_from_top_level) {
+		
+		
+		int I_len_xpath_f1;
+		
 		
 		DomNavigator O_retval_dom_navi = new DomNavigator();
 		
 		if ((PI_S_xpath == null) || ((I_len_xpath_f1 = PI_S_xpath.length()) == 0)) {
 		   return O_retval_dom_navi;
+		   }
+		
+		IllegalArgumentException E_ill_arg;
+		String S_err_msg;
+		if (PI_E_starts_from_top_level == null) {
+			S_err_msg = "Top level status must not be null here.";
+			E_ill_arg = new IllegalArgumentException(S_err_msg);
+			throw E_ill_arg;
 		    }
 		
-	    int i1, I_len_remaining_f1, I_nbr_hierarchy_ups_f1 /*, I_len_xpath_f0 */;
-	    ParsingState E_parsing_state;
+		MutableInt O_nbr_chars_consumed;
+		ParsingState E_parsing_state;
+		MutableBoolean B_is_clazz;  // true: //*[class='foo']  - false: tag //bar
+		char C_xp;
+	    String  S_value, S_remaining_xp;
+	    
+	    boolean B_convertible_to_dom;
+	    int i1, I_len_remaining_f1, I_nbr_hierarchy_ups_f1, I_nbr_chars_consumed_f1 /*, I_len_xpath_f0 */;
 	   
 	   E_parsing_state = ParsingState.init;
 //	   I_len_xpath_f0 = I_len_xpath_f1 - 1;
@@ -314,21 +371,21 @@ public class DomNavigator {
 			  else if (C_xp == '/') {
 			    	E_parsing_state = ParsingState.initialSlash; 
 			        }
-			  else if ((C_xp == 'i') && (S_value = DomNavigator.FS_id_to_find(PI_S_xpath.toString(), O_nbr_chars_consumed)) != null) {
-				 if (PI_B_starts_from_top_level) {
-			        I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
-				    i1 += I_nbr_chars_consumed_f1;
-				    O_retval_dom_navi.FV_add(EleType.id, S_value);
-				    E_parsing_state = ParsingState.attrSingle;
-			        }
-				 else {
+			  else if ((C_xp == 'i') && (S_value = DomNavigator.FS_id_to_find(PI_S_xpath.toString(), O_retval_dom_navi.AO_ele_types, O_nbr_chars_consumed)) != null) {
+				 if (PI_E_starts_from_top_level == StartsFromTopLevel.no) {
 					 O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"id('...') is only valid at top level.",
 						C_xp);
 					    E_parsing_state = ParsingState.invalid; 
-				        break LOOP_CHARS;
+				        break LOOP_CHARS; 
+			        }
+				 else {
+					I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
+				    i1 += I_nbr_chars_consumed_f1;
+				    O_retval_dom_navi.FV_add(EleType.id, S_value);
+				    E_parsing_state = ParsingState.attrSingle;
 				 }}
 			  else {
 				 O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
@@ -357,22 +414,23 @@ public class DomNavigator {
 			   if (S_remaining_xp == null) { // only after a double slash // there is a need for a single usage of the variable S_remaining_xp
 				  S_remaining_xp = PI_S_xpath.subSequence(i1, I_len_xpath_f1).toString();
 			      }
-			   if ((C_xp == '*') && (S_value = DomNavigator.FS_id_to_find(S_remaining_xp, O_nbr_chars_consumed)) != null) {
-				  if ((PI_B_starts_from_top_level) && (O_retval_dom_navi.AO_ele_types.size() == 0)) {
-					  I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
-					  i1 += I_nbr_chars_consumed_f1;
-					  O_retval_dom_navi.FV_add(EleType.id, S_value);
-					  E_parsing_state = ParsingState.attrSingle;
-				      }
-				  else {
+			   if ((C_xp == '*') && (S_value = DomNavigator.FS_id_to_find(S_remaining_xp, (List<Elem>)null, O_nbr_chars_consumed)) != null) {
+				  if ((PI_E_starts_from_top_level == StartsFromTopLevel.no) || (FB_has_top_level_show_stopper(O_retval_dom_navi.AO_ele_types))) {
 					  O_retval_dom_navi.O_xpath2dom_parsing_failure = new Xpath2DomParsingFailure(
 						i1,
 						E_parsing_state,
 						"*[@id='...'] is only valid at top level.",
 						C_xp);
 					    E_parsing_state = ParsingState.invalid; 
-				        break LOOP_CHARS;
-				  }}
+				        break LOOP_CHARS; 
+				       }
+				  else {
+					  I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
+					  i1 += I_nbr_chars_consumed_f1;
+					  O_retval_dom_navi.FV_add(EleType.id, S_value);
+					  E_parsing_state = ParsingState.attrSingle;
+				      }
+				  }
 			   else if ((S_value = DomNavigator.FS_get_elements(S_remaining_xp, B_is_clazz, O_nbr_chars_consumed)) != null) {
 			      I_nbr_chars_consumed_f1 = O_nbr_chars_consumed.getValue();
 				  i1 += I_nbr_chars_consumed_f1;

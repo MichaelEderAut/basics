@@ -4,13 +4,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.github.michaelederaut.basics.xpath2cssselector.Cssify.ConversionResult;
+import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.StartsFromTopLevel;
 
 public class CssifyCached {
 	
 	   	public static final int I_max_nbr_elements_dflt = 2047;
 		public        int I_max_nbr_elements;
 		public        boolean B_try_dom_path;
-		public        boolean B_starts_from_top_level;
+	//	public        boolean B_starts_from_top_level;
+		public        StartsFromTopLevel E_starts_from_top_level;
 		ConversionResults HS_conversion_res;
 		
 	
@@ -56,18 +58,18 @@ public class CssifyCached {
 	public CssifyCached(
 			final int  PI_I_max_nbr_elements,
 			final boolean PI_B_try_dom_path) {
-		this(PI_I_max_nbr_elements, PI_B_try_dom_path, false);  // don't start from top-level
+		this(PI_I_max_nbr_elements, PI_B_try_dom_path, StartsFromTopLevel.depends);  // don't start from top-level
 		return;
-	}
+	    }
 	
 	public CssifyCached(
 			final int  PI_I_max_nbr_elements,
 			final boolean PI_B_try_dom_path,
-			final boolean PI_B_starts_from_top_level) {
+			final StartsFromTopLevel PI_E_starts_from_top_level) {
 		
 		this.I_max_nbr_elements     = PI_I_max_nbr_elements;
 		this.B_try_dom_path         = PI_B_try_dom_path;
-		this.B_starts_from_top_level = PI_B_starts_from_top_level;
+		this.E_starts_from_top_level = PI_E_starts_from_top_level;
 		this.HS_conversion_res = new ConversionResults(PI_I_max_nbr_elements);
 		return;
 	    }
