@@ -2743,15 +2743,15 @@ public interface Match extends Iterable<Element> {
      * <p>
      * <b>Example Input:</b>
      * <br>
-     * <pre><tt>
+     * <pre><code>
      * &lt;books&gt;
      *   &lt;book id="1"/&gt;
      *   &lt;book id="2"/&gt;
      * &lt;/books&gt;
-     * </tt></pre>
+     * </code></pre>
      * <b>Example XSLT:</b>
      * <br>
-     * <pre><tt>
+     * <pre><code>
      * &lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
      * &lt;xsl:stylesheet version="1.0"
      *     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
@@ -2768,7 +2768,7 @@ public interface Match extends Iterable<Element> {
      *         &lt;/xsl:copy&gt;
      *     &lt;/xsl:template&gt;
      * &lt;/xsl:stylesheet&gt;
-     * </tt></pre>
+     * </code></pre>
      * <b>Apply transformation:</b>
      * <br>
      * <pre><code>

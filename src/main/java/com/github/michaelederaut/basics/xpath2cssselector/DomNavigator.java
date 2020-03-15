@@ -141,8 +141,8 @@ public class DomNavigator {
 	
 	/**
 	 * accepts<ul>
-	 * <li>long form: <tt>*[@id='foo']</tt></li>
-	 * <li>or short: form <tt>id('bar')</tt></li></ul>
+	 * <li>long form: <code>*[@id='foo']</code></li>
+	 * <li>or short: form <code>id('bar')</code></li></ul>
 	 * 
 	 * @param PI_S_xpath String
 	 * @param PO_I_chars_consumed MubableInt

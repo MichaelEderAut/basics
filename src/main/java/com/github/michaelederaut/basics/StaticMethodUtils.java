@@ -10,9 +10,9 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
  * Makeshift workaround until 
- * <tt>{@link org.apache.commons.lang3.reflect.MethodUtils MethodUtils}</tt>
- * provides <tt>{@link org.apache.commons.lang3.reflect.MethodUtils#invokeStaticMethod(Class,String,Object[],Class[])
- * invokeStaticMethod}</tt> with forced access;
+ * <code>{@link org.apache.commons.lang3.reflect.MethodUtils MethodUtils}</code>
+ * provides <code>{@link org.apache.commons.lang3.reflect.MethodUtils#invokeStaticMethod(Class,String,Object[],Class[])
+ * invokeStaticMethod}</code> with forced access;
  * @author Mr. Michael Eder
  *
  */

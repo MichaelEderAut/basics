@@ -58,8 +58,8 @@ public static String[][] FLAS_to_array(
 	 * @param <AnyType> generic method type inference 
 	 *        <a href=https://docs.oracle.com/javase/tutorial/java/generics/genTypeInference.html>Oracle Docs: Type Inference</a>
 	 * @param PI_LAO_attrs_list  {@link List} of array of {@link Object Objects} to be converted to a 2 dimensional array of {@link Object Objects}.
-	 * @param PI_AT_clazz {@link Class} for each input row. Defaults to <tt>Class&lt;String&gt;[2]</tt>.
-	 * @return <tt>&lt;AnyType&gt;[][]</tt>
+	 * @param PI_AT_clazz {@link Class} for each input row. Defaults to <code>Class&lt;String&gt;[2]</code>.
+	 * @return <code>&lt;AnyType&gt;[][]</code>
 	 */
 	public static <AnyType> AnyType[][] FLAO_to_array(
 			final List<Object[]> PI_LAO_attrs_list,
@@ -191,8 +191,8 @@ public static String[][] FLAS_to_array(
 	 * @param <AnyType> generic method type inference 
 	 *        <a href=https://docs.oracle.com/javase/tutorial/java/generics/genTypeInference.html>Oracle Docs: Type Inference</a>
 	 * @param PI_LLO_attrs_list 2 dimensional {@link List} of {@link Object Objects} to be converted to a 2 dimensional array of {@link Object Objects}.
-	 * @param PI_LT_clazz {@link Class} for each input row. Defaults to <tt>Class&lt;String&gt;[2]</tt>.
-	 * @return <tt>&lt;AnyType&gt;[][]</tt>
+	 * @param PI_LT_clazz {@link Class} for each input row. Defaults to <code>Class&lt;String&gt;[2]</code>.
+	 * @return <code>&lt;AnyType&gt;[][]</code>
 	 */
 	public static <AnyType> AnyType[][] FLLO_to_array(
 			final List<? extends List<? extends Object>> PI_LLO_attrs_list,
