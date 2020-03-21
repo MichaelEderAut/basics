@@ -7,3 +7,5 @@
 clean-unpack-src.launch
 .git.OLD/
 .git.old/
+pom.xml.old
+pom.xml.OLD
