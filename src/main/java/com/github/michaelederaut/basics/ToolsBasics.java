@@ -32,6 +32,7 @@ public class ToolsBasics {
      * @see     java.lang.System#getProperty(java.lang.String)
      */
 	public static final String FS    =  java.io.File.separator;
+	public static final String LS    =  System.lineSeparator();
 	public static final String S_windows_suffix_exe = "exe";
 	public static final String S_windows_suffix_dll = "dll";
 	
@@ -138,6 +139,13 @@ public class ToolsBasics {
 	   return L_retval;
 	   }
    
+  
+   /**
+    * 
+    * @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
+    * 
+    */
+   @Deprecated 
    public static Integer FI_parse_strict_decimal(final String PI_S_number) {
 	   
 	   GroupMatchResult O_group_match_result;
@@ -155,6 +163,7 @@ public class ToolsBasics {
 	   return I_retval;
  }
  
+  
  public static int FI_parse_decimal(final String PI_S_number, int PI_I_default) {
 	   
 	   int I_retval;
@@ -170,6 +179,12 @@ public class ToolsBasics {
  }
  
  
+   /**
+    * 
+    * @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
+    * 
+    */
+   @Deprecated 
  public static int FI_parse_decimal(final String PI_S_number) {
 	   
 	   int I_retval;
@@ -180,12 +195,18 @@ public class ToolsBasics {
 }
  
  
+/**
+* 
+* @deprecated Use standard method <code>Long.parseLong("...", 10)</code> instead
+* 
+*/
+ @Deprecated  
  public static Long FL_parse_strict_decimal(final String PI_S_number) {
 	   
 	   GroupMatchResult O_group_match_result;
 	   String S_number;
 	   Long L_retval;
-	   
+	     
 	   L_retval = null;
 	   O_group_match_result = RegexpUtils.FO_match(PI_S_number, P_leading_zeroes);
 	   if (O_group_match_result.I_array_size_f1 < 2) {

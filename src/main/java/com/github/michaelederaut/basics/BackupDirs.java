@@ -89,7 +89,6 @@ public class BackupDirs {
     public BackupDirs (final int PI_I_arity, final String PI_S_infix) {
 		
 		FO_ctor(this, PI_I_arity, PI_S_infix);
-		
 	}
 	
 	public  boolean B_is_backupdir(final String PI_S_dn_dir_to_backup) {
