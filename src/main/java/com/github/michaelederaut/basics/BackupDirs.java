@@ -65,7 +65,6 @@ public class BackupDirs {
 		PI_O_Backup_Dirs.I_arity =  PI_I_arity;
 		PI_O_Backup_Dirs.S_max_serial = StringUtils.repeat('9', PI_O_Backup_Dirs.I_arity);
 		// perl example:    p int('aaaa,-.bak.00001' =~ m/^([\w\.\,\-]+?)(\.bak\.\d{5})$/)
-		// 1
 		
 		PI_O_Backup_Dirs.S_infix_quoted = S_infix_quoted;		
  		
@@ -79,9 +78,8 @@ public class BackupDirs {
 				Pattern.compile(PI_O_Backup_Dirs.S_regexp_backup_gen_rel_dir_name);
 		PI_O_Backup_Dirs.S_fmt_string = "%0" + PI_I_arity + "d";
 		return O_retval_backup_dirs;
-		
-		
 	}
+	
 	public BackupDirs (final int PI_I_arity) {
 		
 		FO_ctor(this, PI_I_arity, "");
