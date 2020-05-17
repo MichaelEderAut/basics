@@ -1,8 +1,10 @@
 package com.github.michaelederaut.basics;
 
 import static com.github.michaelederaut.basics.ToolsBasics.LS;
+import static com.github.michaelederaut.basics.WorkSheetUtils.I_ord_of_A;
 
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -11,21 +13,26 @@ import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
 public class WorkSheetUtils {
 
 public static final int I_ord_of_A = (int)'A';	
-	
+protected static final boolean B_trace = true;
+
+public static final CellCopyPolicy O_cell_copy_policy_dflt = new CellCopyPolicy();
+
 /**
  * @see <a href="https://stackoverflow.com/questions/10773961/apache-poi-apply-one-style-to-different-workbooks">
  * Apache POI: apply one style to different workbooks</a>
  */
-public static final CellCopyPolicy O_cell_copy_policy_dflt = new CellCopyPolicy()
+public static final CellCopyPolicy O_cell_copy_policy_failsafe = new CellCopyPolicy()
 {{ setCopyCellStyle(false); }};
 
 
@@ -110,21 +117,32 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 	    RuntimeException E_rt;
 		NullPointerException E_np;
 		
+		XSSFWorkbook O_wrk_book_source, O_wrk_book_target;
+		StylesTable O_styles_table_source, O_styles_table_target;
 		CellCopyPolicy O_cell_copy_policy;
-		XSSFCellStyle  AO_cell_styles[], O_cell_stype;
+		XSSFCell O_cell_dest;
+		XSSFCellStyle   O_cell_style_source, O_cell_style_target;
 		XSSFRow O_row_src_0, O_row_dest_needed_0, O_row_dest_temp_dummy_1;
+		
+		Set<String> HS_table_style_names_source, HS_table_style_names_target;
 		String  S_msg_1, S_row_dump;
-		int     i1, i2, i3, I_nbr_rows_f1, I_nbr_cells_f1, I_nbr_cells_f0;
+		char    C_col;
+		int     i1, i2, i3, I_nbr_rows_f1, I_nbr_cells_f0, I_nbr_cell_styles_target_f1;
+		short   I_idx_cell_style_source;
 		boolean B_indivitual_cell_style;
 		
-	    if (PI_O_cell_copy_policy != null) {
-			O_cell_copy_policy = PI_O_cell_copy_policy;
-			 B_indivitual_cell_style = false;
-		     }
-		 else {
-			O_cell_copy_policy = null;
+		
+		XSSFCellStyle  AO_cell_styles_source[] = null;
+		int I_nbr_cells_f1 = 0;
+		
+	    if (PI_O_cell_copy_policy == null) {
+	    	O_cell_copy_policy = O_cell_copy_policy_failsafe;
 			B_indivitual_cell_style = true;
-		     }
+	    	}
+		 else {
+			O_cell_copy_policy = PI_O_cell_copy_policy;
+			B_indivitual_cell_style = false;
+		    }
 		
 		if (PI_AI_rows == null) {
 			return;
@@ -135,17 +153,50 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 			E_np = new NullPointerException(S_msg_1);
 			throw E_np;
 		    }
+		else {
+		// TODO
+		}
+		
+		if (B_indivitual_cell_style) {
+			O_wrk_book_target = PB_O_ws_target.getWorkbook();
+			I_nbr_cell_styles_target_f1 = O_wrk_book_target.getNumCellStyles();
+			if (B_trace) {
+			   S_msg_1 = "Target work-book nbr of cell styles: " + I_nbr_cell_styles_target_f1;
+			   System.out.println(S_msg_1);
+			   }
+			O_styles_table_target = O_wrk_book_target.getStylesSource();
+			HS_table_style_names_target = O_styles_table_target.getExplicitTableStyleNames();
+			if (B_trace) {
+			   if (I_nbr_cell_styles_target_f1 > 0) {
+			       S_msg_1 = String.join(LS, HS_table_style_names_target);
+			       System.out.println(LS + S_msg_1);
+			       }
+		        }
+		    }  
+		else {
+			O_wrk_book_target = null;
+		    }
 		
 		I_nbr_rows_f1 = PI_AI_rows.size();
 		for (i1 = 0; i1 < I_nbr_rows_f1; i1++) {
 			i2 = i1 + 1;
 			O_row_dest_temp_dummy_1 = PB_O_ws_target.createRow(i2);
 			O_row_src_0 = PI_AI_rows.get(i1);
-			I_nbr_cells_f0 = O_row_src_0.getLastCellNum();
-			
-			try {
-				O_row_dest_temp_dummy_1.copyRowFrom(O_row_src_0, PI_O_cell_copy_policy);
-			} catch (IllegalArgumentException PI_E_ill_arg) {
+			if (B_indivitual_cell_style) {
+			   I_nbr_cells_f0 = O_row_src_0.getLastCellNum();
+			   I_nbr_cells_f1 = I_nbr_cells_f0 + 1;
+			   AO_cell_styles_source = new XSSFCellStyle[I_nbr_cells_f1];
+			   for (i3 = 0; i3 < I_nbr_cells_f1; i3++) {
+				   O_cell_dest = O_row_src_0.getCell(i3);
+				   if (O_cell_dest != null) {
+				      O_cell_style_source = O_cell_dest.getCellStyle();
+				      AO_cell_styles_source[i3] = O_cell_style_source;
+			          }
+			       }
+			     }
+		     try {
+			     O_row_dest_temp_dummy_1.copyRowFrom(O_row_src_0, O_cell_copy_policy);
+			   } catch (IllegalArgumentException PI_E_ill_arg) {
 				S_row_dump = FS_dump_row(O_row_src_0);
 				S_msg_1 = "Error filling dummy row at 0-based calculated index: " + i1 + " from" + LS + LS +
 						S_row_dump;
@@ -153,10 +204,29 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 				throw E_rt;
 			    }  
 			O_row_dest_needed_0 = PB_O_ws_target.createRow(i1);
-			O_row_dest_needed_0.copyRowFrom(O_row_dest_temp_dummy_1, PI_O_cell_copy_policy);
-			
+			O_row_dest_needed_0.copyRowFrom(O_row_dest_temp_dummy_1, O_cell_copy_policy);
+			if (B_indivitual_cell_style) {
+				// https://stackoverflow.com/questions/10773961/apache-poi-apply-one-style-to-different-workbooks
+				for (i3 = 0; i3 < I_nbr_cells_f1; i3++) {
+					O_cell_dest = O_row_dest_needed_0.getCell(i3);
+					if (O_cell_dest != null) {
+						O_cell_style_source = AO_cell_styles_source[i3];
+						if (O_cell_style_source != null) {
+							I_idx_cell_style_source = O_cell_style_source.getIndex();
+							if (B_trace) {
+							   C_col = (char)(I_ord_of_A + i3 - 1);
+							   S_msg_1 = "Row_idx_f1:" + i2 + ", " + C_col + "/" + i3 + " src_idx: " + I_idx_cell_style_source;
+							   System.out.println(S_msg_1);
+							   }
+							O_cell_style_target = O_wrk_book_target.createCellStyle();
+							O_cell_style_target.cloneStyleFrom(O_cell_style_source);
+							O_cell_dest.setCellStyle(O_cell_style_target);
+						    }
+					    }
+				    }
+			     }
 			PB_O_ws_target.removeRow(O_row_dest_temp_dummy_1);
-		}
+		}  // end for 
 		return;
 	}
 
@@ -167,7 +237,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		FV_copy_wrk_sheet(
 			PB_O_ws, 
 			PI_AI_rows,
-			O_cell_copy_policy_dflt);
+			O_cell_copy_policy_failsafe);
 		
 		return;	
 	}
@@ -179,7 +249,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		FV_copy_wrk_sheet(
 			PB_O_ws_target, 
 			PB_O_ws_src,
-			O_cell_copy_policy_dflt);
+			O_cell_copy_policy_failsafe);
 		return;
 		}
 	
@@ -203,7 +273,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		    }
 		
 		if (PI_O_cell_copy_policy == null) {
-			PI_O_cell_copy_policy = O_cell_copy_policy_dflt;
+			PI_O_cell_copy_policy = O_cell_copy_policy_failsafe;
 		    }
 		Stack<XSSFRow> AO_rows;
 		XSSFRow O_row;
