@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
@@ -102,20 +103,32 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
  * Why am I getting IllegalArgumentException while using copyRowFrom(…) in XSSFRow?</a>
  */
  public static void FV_copy_wrk_sheet(
-			XSSFSheet PB_O_ws_target, 
-			Vector<XSSFRow> PI_AI_rows,
-			CellCopyPolicy PI_O_cell_copy_policy) {
+			final XSSFSheet PB_O_ws_target, 
+			final Vector<XSSFRow> PI_AI_rows,
+			final CellCopyPolicy PI_O_cell_copy_policy) {
 		
 	    RuntimeException E_rt;
 		NullPointerException E_np;
 		
+		CellCopyPolicy O_cell_copy_policy;
+		XSSFCellStyle AO_cell_styles[], O_cell_stype;
 		XSSFRow O_row_src_0, O_row_dest_needed_0, O_row_dest_temp_dummy_1;
-		String S_msg_1, S_row_dump;
-		int i1, i2, I_nbr_rows_f1;
+		String  S_msg_1, S_row_dump;
+		int     i1, i2, i3, I_nbr_rows_f1, I_nbr_cells_f1, I_nbr_cells_f0;
+		boolean B_indivitual_cell_style;
+		
+	    if (PI_O_cell_copy_policy != null) {
+			O_cell_copy_policy = PI_O_cell_copy_policy;
+			 B_indivitual_cell_style = false;
+		     }
+		 else {
+			O_cell_copy_policy = null;
+			B_indivitual_cell_style = true;
+		     }
 		
 		if (PI_AI_rows == null) {
 			return;
-		}
+		    }
 		
 		if (PB_O_ws_target == null) {
 			S_msg_1 = "Parameter of type " + XSSFSheet.class.getName() + " must not be null";
@@ -128,6 +141,8 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 			i2 = i1 + 1;
 			O_row_dest_temp_dummy_1 = PB_O_ws_target.createRow(i2);
 			O_row_src_0 = PI_AI_rows.get(i1);
+			I_nbr_cells_f0 = O_row_src_0.getLastCellNum();
+			
 			try {
 				O_row_dest_temp_dummy_1.copyRowFrom(O_row_src_0, PI_O_cell_copy_policy);
 			} catch (IllegalArgumentException PI_E_ill_arg) {
@@ -139,6 +154,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 			    }  
 			O_row_dest_needed_0 = PB_O_ws_target.createRow(i1);
 			O_row_dest_needed_0.copyRowFrom(O_row_dest_temp_dummy_1, PI_O_cell_copy_policy);
+			
 			PB_O_ws_target.removeRow(O_row_dest_temp_dummy_1);
 		}
 		return;
