@@ -179,11 +179,11 @@ public class ToolsBasics {
  }
  
  
-   /**
-    * 
-    * @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
-    * 
-    */
+/**
+* 
+* @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
+* 
+*/
    @Deprecated 
  public static int FI_parse_decimal(final String PI_S_number) {
 	   
@@ -241,10 +241,8 @@ public static Long FL_parse_decimal(final String PI_S_number) {
 	   return L_retval;
  }
   
- 
-   //-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
    
- 
    /** 
     * 
     * @param PI_S_pn                   pathname to be truncated
