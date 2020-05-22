@@ -3,6 +3,7 @@ package com.github.michaelederaut.basics;
 import static com.github.michaelederaut.basics.ToolsBasics.LS;
 import static com.github.michaelederaut.basics.WorkSheetUtils.I_ord_of_A;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
@@ -34,7 +35,6 @@ public static final CellCopyPolicy O_cell_copy_policy_dflt = new CellCopyPolicy(
  */
 public static final CellCopyPolicy O_cell_copy_policy_failsafe = new CellCopyPolicy()
 {{ setCopyCellStyle(false); }};
-
 
 public static String FS_dump_row (XSSFRow PI_O_row) {
 	
@@ -125,14 +125,16 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		XSSFRow O_row_src_0, O_row_dest_needed_0, O_row_dest_temp_dummy_1;
 		
 		Set<String> HS_table_style_names_source, HS_table_style_names_target;
+		Set<Short>  HI_table_style_source_idxs;
 		String  S_msg_1, S_row_dump;
 		char    C_col;
-		int     i1, i2, i3, I_nbr_rows_f1, I_nbr_cells_f0, I_nbr_cell_styles_target_f1;
+		int     i1, i2, i3, i4, I_nbr_rows_f1, I_nbr_cells_f0, I_nbr_cell_styles_target_f1;
 		short   I_idx_cell_style_source;
 		boolean B_indivitual_cell_style;
 		
 		
 		XSSFCellStyle AO_cell_styles_source[] = null;
+		
 		int I_nbr_cells_f1 = 0;
 		
 	    if (PI_O_cell_copy_policy == null) {
@@ -158,6 +160,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		}
 		
 		if (B_indivitual_cell_style) {
+			HI_table_style_source_idxs = new HashSet<Short>();
 			O_wrk_book_target = PB_O_ws_target.getWorkbook();
 			I_nbr_cell_styles_target_f1 = O_wrk_book_target.getNumCellStyles();
 			if (B_trace) {
@@ -175,6 +178,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		    }  
 		else {
 			O_wrk_book_target = null;
+			HI_table_style_source_idxs = null;
 		    }
 		
 		I_nbr_rows_f1 = PI_AI_rows.size();
@@ -214,19 +218,43 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 						if (O_cell_style_source != null) {
 							I_idx_cell_style_source = O_cell_style_source.getIndex();
 							if (B_trace) {
-							   C_col = (char)(I_ord_of_A + i3 - 1);
-							   S_msg_1 = "Row_idx_f1:" + i2 + ", " + C_col + "/" + i3 + " src_idx: " + I_idx_cell_style_source;
+							   i4 = i3 + 1;	
+							   C_col = (char)(I_ord_of_A + i3);
+							   S_msg_1 = "Row_idx_f1: " + i2 + ", " + C_col + "/" + i4 + " src_idx: " + I_idx_cell_style_source;
 							   System.out.println(S_msg_1);
 							   }
-							O_cell_style_target = O_wrk_book_target.createCellStyle();
-							O_cell_style_target.cloneStyleFrom(O_cell_style_source);
-							O_cell_dest.setCellStyle(O_cell_style_target);
+							O_cell_style_target = O_cell_style_source;
+							try {
+								O_cell_dest.setCellStyle(O_cell_style_target);
+							} catch (IllegalArgumentException PI_E_ill_arg) {
+								if (B_trace) {
+									S_msg_1 = "Cought " +  PI_E_ill_arg.getClass().getSimpleName();
+									System.out.println(S_msg_1);
+								    }
+							   	O_cell_style_target.cloneStyleFrom(O_cell_style_source);
+							   	HI_table_style_source_idxs.add(I_idx_cell_style_source);
+							   	O_cell_dest.setCellStyle(O_cell_style_target);
+							}
+//							if (HI_table_style_source_idxs.contains(I_idx_cell_style_source)) {
+//								O_cell_style_target = O_cell_style_source;
+//							   }
+//							else {
+//							    O_cell_style_target = O_wrk_book_target.createCellStyle();
+//							   	O_cell_style_target.cloneStyleFrom(O_cell_style_source);
+//							   	HI_table_style_source_idxs.add(I_idx_cell_style_source);
+//							   }
+//							O_cell_dest.setCellStyle(O_cell_style_target);
 						    }
 					    }
 				    }
 			     }
 			PB_O_ws_target.removeRow(O_row_dest_temp_dummy_1);
-		}  // end for 
+		}  // end for
+		if (B_trace) {
+			I_nbr_cell_styles_target_f1 = O_wrk_book_target.getNumCellStyles();
+		    S_msg_1 = "Target work-book nbr of cell styles: " + I_nbr_cell_styles_target_f1;
+		    System.out.println(S_msg_1);
+		}
 		return;
 	}
 
