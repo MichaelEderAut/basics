@@ -2,6 +2,7 @@
 /bin/
 **/_archive/
 # /src/main/java/_archive/
+.classpath
 .classpath.old
 .classpath.OLD
 clean-unpack-src.launch
