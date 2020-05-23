@@ -1,10 +1,11 @@
 package com.github.michaelederaut.basics;
 
-import static com.github.michaelederaut.basics.ToolsBasics.LS;
-import static com.github.michaelederaut.basics.WorkSheetUtils.I_ord_of_A;
 
+
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -20,7 +21,15 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyleXfs;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTStylesheet;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableStyles;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.impl.CTStylesheetImpl;
 
+import static com.github.michaelederaut.basics.ToolsBasics.LS;
+import static com.github.michaelederaut.basics.WorkSheetUtils.I_ord_of_A;
 
 public class WorkSheetUtils {
 
@@ -118,7 +127,13 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		NullPointerException E_np;
 		
 		XSSFWorkbook O_wrk_book_source, O_wrk_book_target;
+		XSSFSheet    O_wrk_sheet_source;
 		StylesTable O_styles_table_source, O_styles_table_target;
+		CTCellStyles O_cell_styles;
+		List<CTCellStyle> AO_cell_styles;
+    	CTStylesheet O_ct_style_sheet;  // CT = complex type
+		CTStylesheetImpl O_ct_style_sheet_impl;
+		CTCellStyleXfs O_cell_style_xfs; 
 		CellCopyPolicy O_cell_copy_policy;
 		XSSFCell O_cell_dest;
 		XSSFCellStyle   O_cell_style_source, O_cell_style_target;
@@ -128,7 +143,9 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		Set<Short>  HI_table_style_source_idxs;
 		String  S_msg_1, S_row_dump;
 		char    C_col;
-		int     i1, i2, i3, i4, I_nbr_rows_f1, I_nbr_cells_f0, I_nbr_cell_styles_target_f1;
+		int     i1, i2, i3, i4, i5, I_nbr_rows_f1, I_nbr_cells_f0, 
+		        I_nbr_cell_styles_src_source_f1,  I_nbr_cell_styles_target_f1;
+		long    I_nbr_cell_styles_source_f1;
 		short   I_idx_cell_style_source;
 		boolean B_indivitual_cell_style;
 		
@@ -185,18 +202,79 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		for (i1 = 0; i1 < I_nbr_rows_f1; i1++) {
 			i2 = i1 + 1;
 			O_row_dest_temp_dummy_1 = PB_O_ws_target.createRow(i2);
-			O_row_src_0 = PI_AI_rows.get(i1);
-			if (B_indivitual_cell_style) {
-			   I_nbr_cells_f0 = O_row_src_0.getLastCellNum();
-			   I_nbr_cells_f1 = I_nbr_cells_f0 + 1;
-			   AO_cell_styles_source = new XSSFCellStyle[I_nbr_cells_f1];
-			   for (i3 = 0; i3 < I_nbr_cells_f1; i3++) {
-				   O_cell_dest = O_row_src_0.getCell(i3);
+			O_row_src_0 = PI_AI_rows.get(i1);	
+			I_nbr_cells_f0 = O_row_src_0.getLastCellNum();
+			I_nbr_cells_f1 = I_nbr_cells_f0 + 1;
+			AO_cell_styles_source = new XSSFCellStyle[I_nbr_cells_f1];
+			for (i3 = 0; i3 < I_nbr_cells_f1; i3++) {
+			     O_cell_dest = O_row_src_0.getCell(i3);
 				   if (O_cell_dest != null) {
+					  if (B_indivitual_cell_style) {
+					      if (i1 == 0) {
+					         O_wrk_sheet_source = O_cell_dest.getSheet(); 
+					         O_wrk_book_source = O_wrk_sheet_source.getWorkbook();
+					         if (B_trace) {
+					        	// google: apache poi determine/get name of cellStyle
+					        	// stackoverflow.com/questions/26675062/poi-excel-get-style-name
+					        	O_styles_table_source = O_wrk_book_source.getStylesSource();
+					        	
+    				            I_nbr_cell_styles_src_source_f1 = O_styles_table_source.getNumCellStyles();
+    				            O_ct_style_sheet = O_styles_table_source.getCTStylesheet();
+    				            O_cell_styles = O_ct_style_sheet.getCellStyles();
+					          //  O_ct_style_sheet_impl = (CTStylesheetImpl)O_ct_style_sheet;
+					         
+					           //  O_ct_style_sheet.getCellStyles();
+//					            Method[] AO_methods;
+					            String       S_style_name;
+					            StringBuffer SB_style_names = new StringBuffer();
+//					            Class T_style_sheet;
+//					            
+//					            // AO_methods = O_ct_style_sheet.getClass().getMethods();
+//					             T_style_sheet = O_ct_style_sheet.getClass();
+//					             AO_methods =  T_style_sheet.getMethods();
+//					             
+//					            for (Method O_method : AO_methods) {
+//					            	S_method_name = O_method.getName();
+//					            	SB_method_names.append(LS + S_method_name);
+//					            }
+//					            
+//					            S_msg_1 = "Method-names: " + SB_method_names;
+//					            System.out.println();
+					            
+					           // O_ct_style_sheet.getTableStyles().getTableStyleArray()[0].getName();
+					           // System.out.println(S_msg_1);
+					            
+					          //  I_nbr_cell_styles_source_f1 =  AO_cell_styles.getCount(); 
+					            
+					        	I_nbr_cell_styles_source_f1 = O_wrk_book_source.getNumCellStyles();
+					        	
+					            AO_cell_styles = O_cell_styles.getCellStyleList();
+					            for (CTCellStyle O_ct_cell_style : AO_cell_styles) {
+					            	S_style_name = O_ct_cell_style.getName();
+					            	SB_style_names.append(S_style_name);
+					            }
+					        	
+					        	// TODO
+					        	
+					            S_msg_1 = "Source work-book nbr of cell styles: " +  I_nbr_cell_styles_src_source_f1;
+					            System.out.println(S_msg_1);
+					            HS_table_style_names_source = O_styles_table_source.getExplicitTableStyleNames();
+					             
+								if (I_nbr_cell_styles_src_source_f1 > 0) {
+									S_msg_1 = String.join(LS, HS_table_style_names_source);
+								    System.out.println(LS + S_msg_1);
+									}
+								
+								for (i5 = 0; i5 < I_nbr_cell_styles_source_f1; i5++) {
+									O_wrk_book_source.getCellStyleAt(i5);
+								
+								     }
+					            }
+					        }
+					      }
 				      O_cell_style_source = O_cell_dest.getCellStyle();
 				      AO_cell_styles_source[i3] = O_cell_style_source;
 			          }
-			       }
 			     }
 		     try {
 			     O_row_dest_temp_dummy_1.copyRowFrom(O_row_src_0, O_cell_copy_policy);
@@ -210,7 +288,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 			O_row_dest_needed_0 = PB_O_ws_target.createRow(i1);
 			O_row_dest_needed_0.copyRowFrom(O_row_dest_temp_dummy_1, O_cell_copy_policy);
 			if (B_indivitual_cell_style) {
-				// https://stackoverflow.com/questions/10773961/apache-poi-apply-one-style-to-different-workbooks
+				// see also: stackoverflow.com/questions/10773961/apache-poi-apply-one-style-to-different-workbooks
 				for (i3 = 0; i3 < I_nbr_cells_f1; i3++) {
 					O_cell_dest = O_row_dest_needed_0.getCell(i3);
 					if (O_cell_dest != null) {
@@ -220,7 +298,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 							if (B_trace) {
 							   i4 = i3 + 1;	
 							   C_col = (char)(I_ord_of_A + i3);
-							   S_msg_1 = "Row_idx_f1: " + i2 + ", " + C_col + "/" + i4 + " src_idx: " + I_idx_cell_style_source;
+							   S_msg_1 = "Row_idx_f1: " + i2 + ", " + C_col + "/" + i4 + ", src_idx: " + I_idx_cell_style_source;
 							   System.out.println(S_msg_1);
 							   }
 							O_cell_style_target = O_cell_style_source;
@@ -231,6 +309,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 									S_msg_1 = "Cought " +  PI_E_ill_arg.getClass().getSimpleName();
 									System.out.println(S_msg_1);
 								    }
+								O_cell_style_target = O_wrk_book_target.createCellStyle();
 							   	O_cell_style_target.cloneStyleFrom(O_cell_style_source);
 							   	HI_table_style_source_idxs.add(I_idx_cell_style_source);
 							   	O_cell_dest.setCellStyle(O_cell_style_target);
