@@ -10,3 +10,4 @@ clean-unpack-src.launch
 .git.old/
 pom.xml.old
 pom.xml.OLD
+pom.old.xml

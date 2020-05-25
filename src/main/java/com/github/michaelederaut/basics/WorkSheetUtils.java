@@ -1,7 +1,6 @@
 package com.github.michaelederaut.basics;
 
-
-
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,6 +9,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -129,22 +130,24 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		XSSFWorkbook O_wrk_book_source, O_wrk_book_target;
 		XSSFSheet    O_wrk_sheet_source;
 		StylesTable O_styles_table_source, O_styles_table_target;
-		CTCellStyles O_cell_styles;
-		List<CTCellStyle> AO_cell_styles;
-    	CTStylesheet O_ct_style_sheet;  // CT = complex type
-		CTStylesheetImpl O_ct_style_sheet_impl;
-		CTCellStyleXfs O_cell_style_xfs; 
+		CTCellStyles O_cell_styles_ct;
+		List<CTCellStyle> AO_cell_styles_ct;
+    	CTStylesheet O_style_sheet_ct;  // CT = complex type
+	//	CTStylesheetImpl O_ct_style_sheet_impl;
+	//	CTCellStyleXfs O_cell_style_xfs; 
 		CellCopyPolicy O_cell_copy_policy;
 		XSSFCell O_cell_dest;
 		XSSFCellStyle   O_cell_style_source, O_cell_style_target;
 		XSSFRow O_row_src_0, O_row_dest_needed_0, O_row_dest_temp_dummy_1;
+		
+		Field AF_style_source[];
 		
 		Set<String> HS_table_style_names_source, HS_table_style_names_target;
 		Set<Short>  HI_table_style_source_idxs;
 		String  S_msg_1, S_row_dump;
 		char    C_col;
 		int     i1, i2, i3, i4, i5, I_nbr_rows_f1, I_nbr_cells_f0, 
-		        I_nbr_cell_styles_src_source_f1,  I_nbr_cell_styles_target_f1;
+		        I_nbr_cell_styles_src_ct_f1,  I_nbr_cell_styles_target_f1;
 		long    I_nbr_cell_styles_source_f1;
 		short   I_idx_cell_style_source;
 		boolean B_indivitual_cell_style;
@@ -185,6 +188,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 			   System.out.println(S_msg_1);
 			   }
 			O_styles_table_target = O_wrk_book_target.getStylesSource();
+		
 			HS_table_style_names_target = O_styles_table_target.getExplicitTableStyleNames();
 			if (B_trace) {
 			   if (I_nbr_cell_styles_target_f1 > 0) {
@@ -213,20 +217,29 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 					      if (i1 == 0) {
 					         O_wrk_sheet_source = O_cell_dest.getSheet(); 
 					         O_wrk_book_source = O_wrk_sheet_source.getWorkbook();
+					         O_styles_table_source = O_wrk_book_source.getStylesSource();
+					         try {
+				                 FieldUtils.writeField(O_wrk_book_target, "stylesTable", O_styles_table_source, true);
+			                 } catch (IllegalAccessException PI_E_ill_arg) {
+				                  S_msg_1 = "Unable to update field '" + "stylesTable" + "' on target workbook";
+				                  E_rt = new RuntimeException(S_msg_1, PI_E_ill_arg); 
+				                  throw E_rt;
+			                  }
 					         if (B_trace) {
 					        	// google: apache poi determine/get name of cellStyle
 					        	// stackoverflow.com/questions/26675062/poi-excel-get-style-name
-					        	O_styles_table_source = O_wrk_book_source.getStylesSource();
+					        
 					        	
-    				            I_nbr_cell_styles_src_source_f1 = O_styles_table_source.getNumCellStyles();
-    				            O_ct_style_sheet = O_styles_table_source.getCTStylesheet();
-    				            O_cell_styles = O_ct_style_sheet.getCellStyles();
+    				          //  I_nbr_cell_styles_src_source_f1 = O_styles_table_source.getNumCellStyles();
+    				            O_style_sheet_ct = O_styles_table_source.getCTStylesheet();
+    				            O_cell_styles_ct = O_style_sheet_ct.getCellStyles();
 					          //  O_ct_style_sheet_impl = (CTStylesheetImpl)O_ct_style_sheet;
 					         
 					           //  O_ct_style_sheet.getCellStyles();
 //					            Method[] AO_methods;
-					            String       S_style_name;
-					            StringBuffer SB_style_names = new StringBuffer();
+					            String       S_style_name_ct;
+					            long          I_id_ct;
+					            StringBuffer SB_style_names_ct = new StringBuffer();
 //					            Class T_style_sheet;
 //					            
 //					            // AO_methods = O_ct_style_sheet.getClass().getMethods();
@@ -246,29 +259,30 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 					            
 					           // I_nbr_cell_styles_source_f1 =  AO_cell_styles.getCount(); 
 					            
-					        	I_nbr_cell_styles_source_f1 = O_wrk_book_source.getNumCellStyles();
+					        	// I_nbr_cell_styles_source_f1 = O_wrk_book_source.getNumCellStyles();
 					        	
-					            AO_cell_styles = O_cell_styles.getCellStyleList();
-					            for (CTCellStyle O_ct_cell_style : AO_cell_styles) {
-					            	S_style_name = O_ct_cell_style.getName();
-					            	SB_style_names.append(S_style_name);
-					            }
+					            AO_cell_styles_ct = O_cell_styles_ct.getCellStyleList();
+					            I_nbr_cell_styles_src_ct_f1 =  O_cell_styles_ct.sizeOfCellStyleArray();
+					            for (CTCellStyle O_cell_style_ct : AO_cell_styles_ct) {
+					            	S_style_name_ct = O_cell_style_ct.getName();
+					            	I_id_ct = O_cell_style_ct.getXfId();
+					            	SB_style_names_ct.append(LS + S_style_name_ct + ", " + I_id_ct);
+					                }
 					        	
-					        	// TODO
-					        	
-					            S_msg_1 = "Source work-book nbr of cell styles: " +  I_nbr_cell_styles_src_source_f1;
+					            S_msg_1 = "Source work-book nbr of cell styles: " +  I_nbr_cell_styles_src_ct_f1;
 					            System.out.println(S_msg_1);
-					            HS_table_style_names_source = O_styles_table_source.getExplicitTableStyleNames();
-					             
-								if (I_nbr_cell_styles_src_source_f1 > 0) {
-									S_msg_1 = String.join(LS, HS_table_style_names_source);
-								    System.out.println(LS + S_msg_1);
-									}
-								
-								for (i5 = 0; i5 < I_nbr_cell_styles_source_f1; i5++) {
-									O_wrk_book_source.getCellStyleAt(i5);
-								
-								     }
+					            System.out.println(SB_style_names_ct + LS);
+//					             HS_table_style_names_source = O_styles_table_source.getExplicitTableStyleNames();
+//					             
+//								 if (I_nbr_cell_styles_src_source_f1 > 0) {
+//									S_msg_1 = String.join(LS, HS_table_style_names_source);
+//								    System.out.println(LS + S_msg_1);
+//									}
+//								
+//								for (i5 = 0; i5 < I_nbr_cell_styles_source_f1; i5++) {
+//									O_wrk_book_source.getCellStyleAt(i5);
+//								
+//								     }
 					            }
 					        }
 					      }
@@ -309,9 +323,10 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 									S_msg_1 = "Cought " +  PI_E_ill_arg.getClass().getSimpleName();
 									System.out.println(S_msg_1);
 								    }
+								
 								O_cell_style_target = O_wrk_book_target.createCellStyle();
 							   	O_cell_style_target.cloneStyleFrom(O_cell_style_source);
-							   	HI_table_style_source_idxs.add(I_idx_cell_style_source);
+							//   	HI_table_style_source_idxs.add(I_idx_cell_style_source);
 							   	O_cell_dest.setCellStyle(O_cell_style_target);
 							}
 //							if (HI_table_style_source_idxs.contains(I_idx_cell_style_source)) {
