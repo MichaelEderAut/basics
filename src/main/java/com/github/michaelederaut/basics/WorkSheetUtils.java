@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
-
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellCopyPolicy;
@@ -219,9 +218,9 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 					         O_wrk_book_source = O_wrk_sheet_source.getWorkbook();
 					         O_styles_table_source = O_wrk_book_source.getStylesSource();
 					         try {
-				                 FieldUtils.writeField(O_wrk_book_target, "stylesTable", O_styles_table_source, true);
+				                 FieldUtils.writeField(O_wrk_book_target, "stylesSource", O_styles_table_source, true);
 			                 } catch (IllegalAccessException PI_E_ill_arg) {
-				                  S_msg_1 = "Unable to update field '" + "stylesTable" + "' on target workbook";
+				                  S_msg_1 = "Unable to update field '" + "stylesSource" + "' on target workbook";
 				                  E_rt = new RuntimeException(S_msg_1, PI_E_ill_arg); 
 				                  throw E_rt;
 			                  }
