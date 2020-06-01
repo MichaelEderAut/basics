@@ -2,14 +2,20 @@ package com.github.michaelederaut.basics;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,12 +27,15 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.XmlUnsignedInt;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyleXfs;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTStylesheet;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.impl.CTStylesheetImpl;
+
+import com.google.common.collect.Streams;
 
 import static com.github.michaelederaut.basics.ToolsBasics.LS;
 import static com.github.michaelederaut.basics.WorkSheetUtils.I_ord_of_A;
@@ -38,6 +47,42 @@ protected static final boolean B_trace = true;
 
 public static final CellCopyPolicy O_cell_copy_policy_dflt = new CellCopyPolicy();
 
+class CellStyleCT {
+	
+	String S_name;
+	long   I_xf_id;
+	long   I_built_in_id;
+}
+
+// StylesTable 438
+public static int[] FAI_add_to_styles_table (
+	final StylesTable PB_O_style_table_target,
+	final StylesTable PI_O_style_table_source) {
+	
+	int i1, I_nbr_cell_styles_source, I_idx_f0;
+	XSSFCellStyle O_cell_style_source;
+	
+	int AI_target_indices[] = null;
+	
+	if (PB_O_style_table_target == null) {
+		return AI_target_indices;
+	}
+	
+	if (PI_O_style_table_source == null) {
+		return AI_target_indices;
+	    }
+	
+	I_nbr_cell_styles_source = PI_O_style_table_source.getNumCellStyles();
+	AI_target_indices = new int[I_nbr_cell_styles_source];
+	
+	for (i1 = 0; i1 < I_nbr_cell_styles_source; i1++) {
+		O_cell_style_source = PI_O_style_table_source.getStyleAt(i1);
+		I_idx_f0 = PB_O_style_table_target.putStyle(O_cell_style_source);
+		AI_target_indices[i1] = I_idx_f0;
+	    }
+	return AI_target_indices;
+	
+}
 /**
  * @see <a href="https://stackoverflow.com/questions/10773961/apache-poi-apply-one-style-to-different-workbooks">
  * Apache POI: apply one style to different workbooks</a>
@@ -109,6 +154,22 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 	return SB_row;
 }
 
+CellStyleCT[] FAO_dump_style_source (final XSSFWorkbook PI_O_workbook) {
+
+   StylesTable O_style_table;	
+	
+   CellStyleCT[]	AO_retval_cell_styles_ct = null;
+
+if (PI_O_workbook == null) {
+   return AO_retval_cell_styles_ct;
+   }
+
+O_style_table = PI_O_workbook.getStylesSource();
+
+return AO_retval_cell_styles_ct;
+	
+}
+
 /**
  * @param PB_O_ws_target
  * @param PI_AI_rows
@@ -129,9 +190,9 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		XSSFWorkbook O_wrk_book_source, O_wrk_book_target;
 		XSSFSheet    O_wrk_sheet_source;
 		StylesTable O_styles_table_source, O_styles_table_target;
-		CTCellStyles O_cell_styles_ct;
-		List<CTCellStyle> AO_cell_styles_ct;
-    	CTStylesheet O_style_sheet_ct;  // CT = complex type
+		CTCellStyles O_cell_styles_source_ct;
+		List<CTCellStyle> AO_cell_styles_source_ct;
+    	CTStylesheet O_style_sheet_soruce_ct;  // CT = complex type
 	//	CTStylesheetImpl O_ct_style_sheet_impl;
 	//	CTCellStyleXfs O_cell_style_xfs; 
 		CellCopyPolicy O_cell_copy_policy;
@@ -143,10 +204,11 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		
 		Set<String> HS_table_style_names_source, HS_table_style_names_target;
 		Set<Short>  HI_table_style_source_idxs;
-		String  S_msg_1, S_row_dump;
+		String  S_msg_1, S_msg_2, S_row_dump;
 		char    C_col;
 		int     i1, i2, i3, i4, i5, I_nbr_rows_f1, I_nbr_cells_f0, 
-		        I_nbr_cell_styles_src_ct_f1,  I_nbr_cell_styles_target_f1;
+		        I_nbr_cell_styles_src_ct_f1,  I_nbr_cell_styles_target_f1,
+		        AI_styles_idx[];
 		long    I_nbr_cell_styles_source_f1;
 		short   I_idx_cell_style_source;
 		boolean B_indivitual_cell_style;
@@ -178,6 +240,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 		// TODO
 		}
 		
+		O_styles_table_target = null;
 		if (B_indivitual_cell_style) {
 			HI_table_style_source_idxs = new HashSet<Short>();
 			O_wrk_book_target = PB_O_ws_target.getWorkbook();
@@ -217,21 +280,28 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 					         O_wrk_sheet_source = O_cell_dest.getSheet(); 
 					         O_wrk_book_source = O_wrk_sheet_source.getWorkbook();
 					         O_styles_table_source = O_wrk_book_source.getStylesSource();
+					         AI_styles_idx = FAI_add_to_styles_table(O_styles_table_source, O_styles_table_target);
 					         try {
 				                 FieldUtils.writeField(O_wrk_book_target, "stylesSource", O_styles_table_source, true);
 			                 } catch (IllegalAccessException PI_E_ill_arg) {
 				                  S_msg_1 = "Unable to update field '" + "stylesSource" + "' on target workbook";
 				                  E_rt = new RuntimeException(S_msg_1, PI_E_ill_arg); 
 				                  throw E_rt;
-			                  }
+			                      }
 					         if (B_trace) {
+					        	
+					             //	 Arrays.stream(AI_styles_idx)...
+					            S_msg_1 = "Style indices: " +
+					                    IntStream.of(AI_styles_idx).mapToObj(String::valueOf).collect(Collectors.joining(","));
+					            System.out.println(S_msg_1);
+					        	// https://stackoverflow.com/questions/38425623/java-join-array-of-primitives-with-separator 
 					        	// google: apache poi determine/get name of cellStyle
 					        	// stackoverflow.com/questions/26675062/poi-excel-get-style-name
-					        
+					             
 					        	
     				          //  I_nbr_cell_styles_src_source_f1 = O_styles_table_source.getNumCellStyles();
-    				            O_style_sheet_ct = O_styles_table_source.getCTStylesheet();
-    				            O_cell_styles_ct = O_style_sheet_ct.getCellStyles();
+    				            O_style_sheet_soruce_ct = O_styles_table_source.getCTStylesheet();
+    				            O_cell_styles_source_ct = O_style_sheet_soruce_ct.getCellStyles();
 					          //  O_ct_style_sheet_impl = (CTStylesheetImpl)O_ct_style_sheet;
 					         
 					           //  O_ct_style_sheet.getCellStyles();
@@ -239,6 +309,7 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 					            String       S_style_name_ct;
 					            long          I_id_ct;
 					            StringBuffer SB_style_names_ct = new StringBuffer();
+					            XmlUnsignedInt I_built_in_id;
 //					            Class T_style_sheet;
 //					            
 //					            // AO_methods = O_ct_style_sheet.getClass().getMethods();
@@ -260,17 +331,35 @@ public static StringBuffer FSB_dump_row (XSSFRow PI_O_row) {
 					            
 					        	// I_nbr_cell_styles_source_f1 = O_wrk_book_source.getNumCellStyles();
 					        	
-					            AO_cell_styles_ct = O_cell_styles_ct.getCellStyleList();
-					            I_nbr_cell_styles_src_ct_f1 =  O_cell_styles_ct.sizeOfCellStyleArray();
-					            for (CTCellStyle O_cell_style_ct : AO_cell_styles_ct) {
+					            AO_cell_styles_source_ct = O_cell_styles_source_ct.getCellStyleList();
+				               // AO_cell_styles_source_ct.contains(???);
+				               // AO_cell_styles_source_ct.add(???) 
+					            I_nbr_cell_styles_src_ct_f1 =  O_cell_styles_source_ct.sizeOfCellStyleArray();
+					            for (CTCellStyle O_cell_style_ct : AO_cell_styles_source_ct) {
 					            	S_style_name_ct = O_cell_style_ct.getName();
 					            	I_id_ct = O_cell_style_ct.getXfId();
+					            	I_built_in_id = O_cell_style_ct.xgetBuiltinId();
 					            	SB_style_names_ct.append(LS + S_style_name_ct + ", " + I_id_ct);
+					            	if (I_built_in_id != null) {
+					            		SB_style_names_ct.append(", " + I_built_in_id);
+					            	    }
 					                }
 					        	
 					            S_msg_1 = "Source work-book nbr of cell styles: " +  I_nbr_cell_styles_src_ct_f1;
 					            System.out.println(S_msg_1);
-					            System.out.println(SB_style_names_ct + LS);
+					            System.out.println("Joined by convential iteration:" + LS + SB_style_names_ct + LS);
+					            
+					             System.out.println(S_msg_1);
+					             
+//					             S_msg_2 = 
+//					             AO_cell_styles_ct.stream().
+//					             map(x -> new String[] {x.getName(), String.valueOf(x.getXfId()), String.valueOf(x.xgetBuiltinId())}).
+//					             map(a -> (a[0] + ", " +  a[1] + ((StringUtils.isNotBlank(a[2]) ? (", " + a[2]) : "" )))).
+//					             collect(Collectors.joining(LS));
+//					         
+//					             System.out.println("Joined by Streams:" + LS + S_msg_2 + LS);
+					             
+					             
 //					             HS_table_style_names_source = O_styles_table_source.getExplicitTableStyleNames();
 //					             
 //								 if (I_nbr_cell_styles_src_source_f1 > 0) {
