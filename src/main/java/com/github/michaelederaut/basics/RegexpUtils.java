@@ -5,9 +5,11 @@ import static org.apache.commons.lang3.StringUtils.LF;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
-import regexodus.Pattern;
-import regexodus.Matcher;
+//import regexodus.Pattern;
+// import regexodus.Matcher;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -443,4 +445,44 @@ public class RegexpUtils {
 		return O_retval_group_match_result;
 		
        }
+	
+	/**
+	 * Inspired by <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus<a>
+	 * 	
+	 * @return String representation of the int argument 
+	 * 
+	 * @param PI_I_flags integer representation of the flags
+	 * @see <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus<a>
+	 */
+		
+	  public static String FS_flags_as_string(final int PI_I_flags) {
+		String S_retval_flags;  
+		
+        StringBuilder sb = new StringBuilder(12);
+        
+        if((PI_I_flags & Pattern.UNIX_LINES) != 0) {
+            sb.append('U');
+             }
+        if((PI_I_flags & Pattern.CASE_INSENSITIVE) != 0) {
+            sb.append('i');
+            }
+        if((PI_I_flags & Pattern.MULTILINE) != 0) {
+            sb.append('m');
+            }
+        if((PI_I_flags & Pattern.DOTALL) != 0) {
+            sb.append('s');
+            }
+         if((PI_I_flags & Pattern.LITERAL) != 0) {
+            sb.append('l');
+            }
+        if((PI_I_flags & Pattern.UNICODE_CASE) != 0) {
+            sb.append('c');
+            }
+        if((PI_I_flags & Pattern.UNICODE_CHARACTER_CLASS) != 0) {
+            sb.append('u');
+            }
+    
+        S_retval_flags = sb.toString();
+        return S_retval_flags;
+    }
 }
