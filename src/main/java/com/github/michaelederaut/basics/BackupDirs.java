@@ -5,8 +5,8 @@ import static com.github.michaelederaut.basics.ToolsBasics.FS;
 import java.io.File;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
-// import java.util.regex.Pattern;
-import regexodus.Pattern;
+import java.util.regex.Pattern;
+// import regexodus.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 

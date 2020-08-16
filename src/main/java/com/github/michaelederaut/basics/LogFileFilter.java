@@ -10,8 +10,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Stack;
-// import java.util.regex.Pattern;
-import regexodus.Pattern;
+import java.util.regex.Pattern;
+// import regexodus.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.StringUtils;

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 // import regexodus.Pattern;
 // import regexodus.Matcher;
@@ -15,7 +16,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.github.michaelederaut.basics.StaticMethodUtils;
 
-import regexodus.PatternSyntaxException;
+// import regexodus.PatternSyntaxException;
 
 /**
  * 
@@ -145,7 +146,7 @@ public class RegexpUtils {
 	     
 	  public NamedPattern (
 			  final String  PI_S_regexp,
-			  final String    PI_S_flags) {
+			  final String  PI_S_flags) {
 		  
 		  int I_flags;
 		  I_flags = FI_parse_flags(PI_S_flags);
@@ -435,7 +436,6 @@ public class RegexpUtils {
 				    
 				    F_action = (final String PI_S_named_gr, final Integer PI_I_idx_f0) -> {
 				    	NamedMatch O_named_match;
-				    	// StringBuilder SB_receiving_match;
 				      	String  S_receiving_match, S_match_from_array;
 				    	boolean B_found_named_match;
 				    	

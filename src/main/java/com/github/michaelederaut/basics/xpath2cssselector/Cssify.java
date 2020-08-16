@@ -6,7 +6,8 @@ import java.util.HashMap;
 import         org.apache.commons.lang3.StringUtils;
 import static  org.apache.commons.lang3.StringUtils.LF;
 
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 import com.github.michaelederaut.basics.RegexpUtils;
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 import com.github.michaelederaut.basics.RegexpUtils.NamedMatch;
