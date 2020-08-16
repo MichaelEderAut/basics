@@ -9,14 +9,10 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
-// import regexodus.Pattern;
-// import regexodus.Matcher;
-
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.github.michaelederaut.basics.StaticMethodUtils;
 
-// import regexodus.PatternSyntaxException;
 
 /**
  * 
@@ -479,9 +475,6 @@ public class RegexpUtils {
 		GroupMatchResult  O_retval_grp_match_result;
 		RegexKey O_regex_key;
 
-	//	I_flags_build = 0x0;
-	
-
 		if (PI_B_compile_once == true) {
 			S_pattern = PI_S_pattern.intern();
 			O_regex_key = new RegexKey(S_pattern, PI_I_flags);
@@ -522,12 +515,12 @@ public class RegexpUtils {
        }
 	
 	/**
-	 * Inspired by <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus<a>
+	 * Inspired by <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus</a>
 	 * 	
 	 * @return String representation of the int argument 
 	 * 
 	 * @param PI_I_flags integer representation of the flags
-	 * @see <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus<a>
+	 * @see <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus</a>
 	 */
 		
 	 public static String FS_flags_as_string(final int PI_I_flags) {
@@ -601,11 +594,11 @@ public class RegexpUtils {
             	 I_retval_flag =  Pattern.UNICODE_CHARACTER_CLASS;
                  break;
             default:
-            	E_synt = new PatternSyntaxException("unknown flag: ");
+            	E_synt = new PatternSyntaxException("unknown flag: ", Character.toString(PI_C_flag) , 0);
             	throw E_synt;
              }
         return I_retval_flag;
-	  }
+	    }
 	  
 	  
 	   public static int FI_parse_flags (

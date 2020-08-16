@@ -15,7 +15,8 @@ import static org.apache.commons.lang3.StringUtils.LF;
 import com.github.michaelederaut.basics.RegexpUtils;
 import com.github.michaelederaut.basics.xpath2cssselector.DomNavigator.ParsingState;
 
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 
 public class DomNavigator {
 	
