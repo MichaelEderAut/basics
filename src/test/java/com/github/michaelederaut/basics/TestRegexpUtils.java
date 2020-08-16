@@ -2,7 +2,8 @@ package com.github.michaelederaut.basics;
 
 import com.github.michaelederaut.basics.RegexpUtils;
 
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 public class TestRegexpUtils {
 
 	private static final String I_STRING = "i";
@@ -18,10 +19,11 @@ public class TestRegexpUtils {
 	S_msg_1 = "String-argument: \'" + I_STRING + "\' Integer result: " + I_res_flags;
 	System.out.println(S_msg_1);
     
-	 P_dummy = new Pattern("", I_res_flags);
+	// P_dummy = new Pattern("", I_res_flags);
+	  P_dummy = Pattern.compile("", I_res_flags);
 	 S_res_flags = P_dummy.flagsAsString();
+	  S_res_flags = P_dummy.
 	 S_msg_2 = "Int-argument: " + I_res_flags + " String result: \'" + S_res_flags + "\'";
 	 System.out.println(S_msg_2);
 	}
-
 }

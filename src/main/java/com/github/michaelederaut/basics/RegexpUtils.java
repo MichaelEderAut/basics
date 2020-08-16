@@ -20,6 +20,7 @@ import com.github.michaelederaut.basics.StaticMethodUtils;
  * @author Lee
  * @see <a href="http://www.regexplanet.com/advanced/java/index.html">RegexPlanet</a>,
  * <a href="https://en.wikipedia.org/wiki/Comparison_of_regular_expression_engines">Comparison of Regexp-Engines</a>
+ * 
  */
 public class RegexpUtils {
 
@@ -466,6 +467,9 @@ public class RegexpUtils {
         if((PI_I_flags & Pattern.CASE_INSENSITIVE) != 0) {
             sb.append('i');
             }
+         if((PI_I_flags & Pattern.COMMENTS) != 0) {
+            sb.append('w');
+            }
         if((PI_I_flags & Pattern.MULTILINE) != 0) {
             sb.append('m');
             }
@@ -477,6 +481,9 @@ public class RegexpUtils {
             }
         if((PI_I_flags & Pattern.UNICODE_CASE) != 0) {
             sb.append('c');
+            }
+        if((PI_I_flags & Pattern.CANON_EQ) != 0) {
+            sb.append('C');
             }
         if((PI_I_flags & Pattern.UNICODE_CHARACTER_CLASS) != 0) {
             sb.append('u');
