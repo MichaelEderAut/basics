@@ -16,14 +16,12 @@
   </properties>
   
 <build>
-   <!--  <sourceDirectory>src</sourceDirectory> -->
+   <!-- <sourceDirectory>src</sourceDirectory> -->
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-     <!-- <source>14</source>
-          <target>14</target> -->
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
             <excludes>
