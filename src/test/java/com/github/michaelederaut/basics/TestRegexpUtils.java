@@ -7,7 +7,6 @@ public class TestRegexpUtils {
 
 	private static final String I_STRING = "i";
 	
-	
 	public static void main(String[] args) {
 	
 	Pattern P_dummy;
