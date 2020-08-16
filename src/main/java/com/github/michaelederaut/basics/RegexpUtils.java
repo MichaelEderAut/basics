@@ -123,7 +123,7 @@ public class RegexpUtils {
 	  
 	  public static class NamedPattern /* extends Pattern */ {
 		  
-		  public static final String S_FN_named_group_map = "namedGroupMap";
+		  public static final String S_FN_named_group_map = /* "namedGroupMap" */ "namedGroups";
 		  public HashMap<String, Integer> HS_named_group_map;
 		  public Pattern O_patt;
 		  
@@ -137,7 +137,8 @@ public class RegexpUtils {
 	  public NamedPattern (
 			  final String PI_S_regexp,
 			  final int    PI_I_flags) {
-		  super (PI_S_regexp, PI_I_flags);
+
+		  this.O_patt = Pattern.compile(PI_S_regexp, PI_I_flags);
 		  this.HS_named_group_map = FHS_get_named_group_map(this);
 		  return;
 		  }	  
