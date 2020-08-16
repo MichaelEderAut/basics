@@ -146,14 +146,24 @@ public class RegexpUtils {
 	  public NamedPattern (
 			  final String  PI_S_regexp,
 			  final String    PI_S_flags) {
-		  super (PI_S_regexp, PI_S_flags);
+		  
+		  int I_flags;
+		  I_flags = FI_parse_flags(PI_S_flags);
+		  this.O_patt = Pattern.compile(PI_S_regexp, I_flags);
 		  this.HS_named_group_map = FHS_get_named_group_map(this);
+		  
 		  return;
 		  }	  
 	  
 	  public  NamedPattern(final Pattern PI_O_pattern) {
-		  super (PI_O_pattern.toString(), PI_O_pattern.getFlags());
-		  this.HS_named_group_map = FHS_get_named_group_map(this);
+		  int I_flags;
+		  String S_regex;
+		  
+		  S_regex = PI_O_pattern.toString();
+		  I_flags = PI_O_pattern.flags();
+		  
+		  this.O_patt = Pattern.compile(S_regex, I_flags);
+		  this.HS_named_group_map = FHS_get_named_group_map(this.O_patt);
 	  }
 	  
 	  public static NamedPattern FO_create_named_pattern(final Pattern PI_O_pattern) {
@@ -162,7 +172,7 @@ public class RegexpUtils {
 		  String S_regexp;
 		  int    I_flags;
 		  
-		  I_flags = PI_O_pattern.getFlags();
+		  I_flags = PI_O_pattern.flags();
 		  S_regexp = PI_O_pattern.toString();
 		  O_retval_named_pattern = new NamedPattern(S_regexp, I_flags);
 		  return O_retval_named_pattern;  
@@ -174,8 +184,10 @@ public class RegexpUtils {
 		  
 		Pattern       O_pattern;  
 		NamedPattern  O_retval_named_Pattern;
+		int I_flags;
 		
-		O_pattern = Pattern.compile(PI_S_regexp, PI_S_flags);
+		I_flags = FI_parse_flags(PI_S_flags);
+		O_pattern = Pattern.compile(PI_S_regexp, I_flags);
 		O_retval_named_Pattern = FO_create_named_pattern(O_pattern);
 		
 		return O_retval_named_Pattern;
@@ -207,17 +219,27 @@ public class RegexpUtils {
 	  }
 	  
 	 public static NamedPattern deserializeFromString(String PI_S_serialized) {
-		  Pattern O_pattern;
+		  Pattern O_res_pattern;
 		  NamedPattern O_retval_named_pattern;
+		  String S_pattern, S_head;
+		  int I_flags, I_len_head_f1; 
+		  char C_flags;
 		  
-		  O_pattern = Pattern.deserializeFromString(PI_S_serialized);
+		// O_res_pattern = Pattern.deserializeFromString(PI_S_serialized);
+		  
+		  I_len_head_f1 = PI_S_serialized.length() -1;
+		  S_head = PI_S_serialized.substring(0, I_len_head_f1);
+		  C_flags = PI_S_serialized.charAt(I_len_head_f1);
+		  I_flags = C_flags >>> 1;  // zero fill right shift by 1 bit
+		  O_res_pattern = Pattern.compile(S_head, I_flags);
 		 
-		  O_retval_named_pattern = NamedPattern.FO_create_named_pattern(O_pattern);
+		  O_retval_named_pattern = NamedPattern.FO_create_named_pattern(O_res_pattern);
 		  return O_retval_named_pattern;
-	 }
-	  
+	     }
+	  }
+	 
 	  public static  HashMap<String, Integer> FHS_get_named_group_map (
-			  final NamedPattern PI_O_pattern) {
+			  final Pattern PI_O_pattern) {
 		  
 		  RuntimeException E_rt;
 		  String S_msg_1;
@@ -225,9 +247,12 @@ public class RegexpUtils {
 		  HashMap<String, Integer> HS_retval = null;
 		  
 		 try {
-			 HS_retval = (HashMap<String, Integer>) FieldUtils.readField(PI_O_pattern, S_FN_named_group_map, true);
+			 HS_retval = (HashMap<String, Integer>) FieldUtils.readField(
+					 PI_O_pattern, 
+					 NamedPattern.S_FN_named_group_map, 
+					 true);
 		} catch (IllegalAccessException | ClassCastException PI_E_ill_acc) {
-			S_msg_1 = "Error reading attribute: \'" +  S_FN_named_group_map + "\' of type: \'" + 
+			S_msg_1 = "Error reading attribute: \'" +  NamedPattern.S_FN_named_group_map + "\' of type: \'" + 
 		    HS_retval.getClass().getName() + "\'";
 			E_rt = new RuntimeException(S_msg_1, PI_E_ill_acc);
 			throw E_rt;
@@ -235,7 +260,21 @@ public class RegexpUtils {
 	
 		 return HS_retval;
 	     }
-	  }
+	
+	  
+	  public static  HashMap<String, Integer> FHS_get_named_group_map (
+			  final NamedPattern PI_O_pattern) {
+		  
+		  Pattern O_pattern;
+		  
+		  O_pattern = PI_O_pattern.O_patt;
+		  HashMap<String, Integer> HS_retval;
+		  
+		  HS_retval = FHS_get_named_group_map(O_pattern);
+		 
+		 return HS_retval;
+	     }
+	 
 	  
 	  public static class NamedMatch {
 		 public  String S_grp_val;
@@ -262,7 +301,6 @@ public class RegexpUtils {
 			   this.S_grp_name = PI_S_grp_name;
 			   return;
 		   }
-		   
 	  }
 	
 	  public static class GroupMatchResult {
@@ -333,21 +371,56 @@ public class RegexpUtils {
 		
 		public static GroupMatchResult FO_match(
 				final String PI_S_input_sequence,
-				final Pattern PI_P_pattern,
+				final Object PI_P_pattern,
 				final int PI_I_modes) {
 				 
 			    AssertionError E_assert;
+			    NullPointerException E_np;
+			    IllegalArgumentException E_ill_arg;
 			    RuntimeException E_rt;
 			    
 				Matcher M_matcher;
 				GroupMatchResult O_retval;
 				NamedPattern O_named_pattern;
-				String S_match;
+				Pattern O_pattern;
+				String S_match, S_msg_1, S_msg_2, S_class_name;
 				
 				int i1, I_group_count_f1, I_array_size_f1;
 				BiConsumer<String, Integer> F_action;
 				
-				M_matcher = PI_P_pattern.matcher(PI_S_input_sequence);
+				try {
+					S_msg_1 = null;
+					if (PI_S_input_sequence == null) {
+					   S_msg_1 = "argument for Input_sequence must not be null.";
+					   }
+					else if (PI_P_pattern == null) {
+						S_msg_1 = "argument for Regexp-Pattern must not be null.";	
+					    }
+				    if (S_msg_1 != null) {
+				    	E_np = new NullPointerException(S_msg_1);
+						throw E_np;	
+				        }
+					if (PI_P_pattern instanceof Pattern)  {
+						O_named_pattern = new NamedPattern((Pattern)PI_P_pattern);
+						O_pattern = (Pattern)PI_P_pattern;
+					    }
+					else if (PI_P_pattern instanceof NamedPattern) {
+						O_named_pattern = (NamedPattern)PI_P_pattern;
+						O_pattern = O_named_pattern.O_patt;
+					}
+					else {
+						S_class_name = PI_P_pattern.getClass().getName();
+						S_msg_1 = "Pattern argument has invalid type \'" + S_class_name + "\'";
+						E_ill_arg = new IllegalArgumentException(S_msg_1);
+						throw E_ill_arg;
+					    }
+				} catch (NullPointerException|IllegalArgumentException PI_E_np) {
+					S_msg_2 = "Unable to match input sequence with pattern";
+					E_rt = new RuntimeException(S_msg_2, PI_E_np);
+					throw E_rt;
+				}
+				
+				M_matcher = O_pattern.matcher(PI_S_input_sequence);
 				
 				if (M_matcher.matches()) {
 					I_group_count_f1 = M_matcher.groupCount();
@@ -356,25 +429,17 @@ public class RegexpUtils {
 					O_retval.I_array_size_f1 = I_array_size_f1;
 					for (i1 = 0; i1 < I_array_size_f1; i1++) {
 						S_match = M_matcher.group(i1);
-						O_retval.AS_numbered_groups[i1] = S_match; }
-				    if (PI_P_pattern instanceof NamedPattern) {
-				    	O_named_pattern = (NamedPattern)PI_P_pattern;
-				        }
-				    else {
-				    	O_named_pattern = new NamedPattern(PI_P_pattern);
-				        }
+						O_retval.AS_numbered_groups[i1] = S_match;
+						}
 				    O_retval.I_map_size_f1 = O_named_pattern.HS_named_group_map.size();
 				    
 				    F_action = (final String PI_S_named_gr, final Integer PI_I_idx_f0) -> {
 				    	NamedMatch O_named_match;
-				    	StringBuilder SB_receiving_match;
+				    	// StringBuilder SB_receiving_match;
 				      	String  S_receiving_match, S_match_from_array;
 				    	boolean B_found_named_match;
 				    	
-				   	    SB_receiving_match = new StringBuilder();
-				      	B_found_named_match = M_matcher.getGroup(PI_S_named_gr, SB_receiving_match, PI_I_modes);
-				    	
-				   	    S_receiving_match = SB_receiving_match.toString();
+				   	    S_receiving_match = M_matcher.group(PI_S_named_gr);
 				    	S_match_from_array = O_retval.AS_numbered_groups[PI_I_idx_f0]; 
 				    	
 				    	O_named_match = new NamedMatch(S_match_from_array, PI_I_idx_f0);
@@ -384,9 +449,11 @@ public class RegexpUtils {
 				    O_named_pattern.HS_named_group_map.forEach(F_action);   
 				}
 				else {
-				   O_retval = RegexpUtils.NO_MATCH; }
+				   O_retval = RegexpUtils.NO_MATCH; 
+				   }
 				
-				return O_retval; }
+				return O_retval; 
+				}
 
 		/**
 		 *
@@ -426,10 +493,12 @@ public class RegexpUtils {
 				}
 			}
 		else {
-		   O_pattern = Pattern.compile(PI_S_pattern, PI_I_flags); }
+		   O_pattern = Pattern.compile(PI_S_pattern, PI_I_flags); 
+		   }
 
 		O_retval_grp_match_result = FO_match(PI_S_input_sequence, O_pattern);
-		return O_retval_grp_match_result; }
+		return O_retval_grp_match_result; 
+		}
 	
 		public static GroupMatchResult FO_match(
 		          final String PI_S_input_sequence,
@@ -623,5 +692,4 @@ public class RegexpUtils {
 		      }
            return I_retval;
 		  } 
-	   
-	   }
+	     }
