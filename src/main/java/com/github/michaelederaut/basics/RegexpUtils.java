@@ -8,12 +8,14 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-//import regexodus.Pattern;
+// import regexodus.Pattern;
 // import regexodus.Matcher;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.github.michaelederaut.basics.StaticMethodUtils;
+
+import regexodus.PatternSyntaxException;
 
 /**
  * 
@@ -26,32 +28,32 @@ public class RegexpUtils {
 
 	public static final  String PARSE_FLAGS = "parseFlags";
 	
-	  public static int FI_parse_flags(final String PI_S_flags) {
-		  
-		  RuntimeException E_rt;
-	      String S_msg_1;
-		  int I_retval;
-		  Object O_flags;
-		  
-		  I_retval = 0;
-		  
-		  try {
-			  O_flags = StaticMethodUtils.invokeStaticMethod(
-						Pattern.class,
-						true, // force access
-						PARSE_FLAGS,
-						new Object[] {PI_S_flags},
-				        new Class[]  {PI_S_flags.getClass()});		
-			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException PI_E_inv_target) {
-				S_msg_1 = "Unable to invoke static private method \'" + 
-						Pattern.class.getName() + "." + PARSE_FLAGS + "(\"" +
-						PI_S_flags + "\")";
-				E_rt = new RuntimeException(S_msg_1, PI_E_inv_target);
-				throw E_rt;
-			}
-		    I_retval = (int)O_flags;
-			return I_retval;
-	  }
+//	  public static int FI_parse_flags(final String PI_S_flags) {
+//		  
+//		  RuntimeException E_rt;
+//	      String S_msg_1;
+//		  int I_retval;
+//		  Object O_flags;
+//		  
+//		  I_retval = 0;
+//		  
+//		  try {
+//			  O_flags = StaticMethodUtils.invokeStaticMethod(
+//						Pattern.class,
+//						true, // force access
+//						PARSE_FLAGS,
+//						new Object[] {PI_S_flags},
+//				        new Class[]  {PI_S_flags.getClass()});		
+//			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException PI_E_inv_target) {
+//				S_msg_1 = "Unable to invoke static private method \'" + 
+//						Pattern.class.getName() + "." + PARSE_FLAGS + "(\"" +
+//						PI_S_flags + "\")";
+//				E_rt = new RuntimeException(S_msg_1, PI_E_inv_target);
+//				throw E_rt;
+//			}
+//		    I_retval = (int)O_flags;
+//			return I_retval;
+//	  }
 	
 	  public static class RegexKey {
 		   public String S_regexp;
@@ -119,13 +121,15 @@ public class RegexpUtils {
 	  
 	  public static HashMap<RegexKey, Pattern> HS_known_patterns = new HashMap<RegexKey, Pattern>();
 	  
-	  public static class NamedPattern extends Pattern {
+	  public static class NamedPattern /* extends Pattern */ {
 		  
 		  public static final String S_FN_named_group_map = "namedGroupMap";
 		  public HashMap<String, Integer> HS_named_group_map;
+		  public Pattern O_patt;
 		  
 	  public NamedPattern (final String PI_S_regexp) {
-		  super (PI_S_regexp);
+		  // super (PI_S_regexp);
+		  O_patt = Pattern.compile(PI_S_regexp);
 		  this.HS_named_group_map = FHS_get_named_group_map(this);
 		  return;
 		  }	  
@@ -212,7 +216,7 @@ public class RegexpUtils {
 	 }
 	  
 	  public static  HashMap<String, Integer> FHS_get_named_group_map (
-			  final Pattern PI_O_pattern) {
+			  final NamedPattern PI_O_pattern) {
 		  
 		  RuntimeException E_rt;
 		  String S_msg_1;
@@ -456,7 +460,7 @@ public class RegexpUtils {
 	 * @see <a href=https://github.com/tommyettinger/RegExodus>Tommy Ettinger's Regexodus<a>
 	 */
 		
-	  public static String FS_flags_as_string(final int PI_I_flags) {
+	 public static String FS_flags_as_string(final int PI_I_flags) {
 		String S_retval_flags;  
 		
         StringBuilder sb  = new StringBuilder(12);
@@ -474,7 +478,7 @@ public class RegexpUtils {
             sb.append('m');
             }
         if((PI_I_flags & Pattern.DOTALL) != 0) {
-            sb.append('s');
+            sb.append('d');
             }
          if((PI_I_flags & Pattern.LITERAL) != 0) {
             sb.append('l');
@@ -492,4 +496,131 @@ public class RegexpUtils {
         S_retval_flags = sb.toString();
         return S_retval_flags;
      }
-}
+	 
+	  public static int FI_get_flag(char PI_C_flag) throws PatternSyntaxException {
+		 
+		 PatternSyntaxException E_synt;
+		 int I_retval_flag;
+		  
+        switch (PI_C_flag) {
+            case 'U': 
+            	 I_retval_flag = Pattern.UNIX_LINES;
+                 break;
+            case 'i':
+                 I_retval_flag = Pattern.CASE_INSENSITIVE;
+                 break;
+            case 'w':
+            	 I_retval_flag = Pattern.COMMENTS; // comments and Whitespaces
+                 break;
+            case 'm':
+            	I_retval_flag = Pattern.MULTILINE;
+                break;
+            case 'd':
+                I_retval_flag = Pattern.DOTALL;
+                break;
+            case 'l':
+                I_retval_flag = Pattern.LITERAL;
+                break;
+            case 'c':
+                I_retval_flag = Pattern.UNICODE_CASE;
+                break;
+             case 'C':
+                I_retval_flag = Pattern.CANON_EQ;
+                break;
+            case 'u':
+            	 I_retval_flag =  Pattern.UNICODE_CHARACTER_CLASS;
+                 break;
+            default:
+            	E_synt = new PatternSyntaxException("unknown flag: ");
+            	throw E_synt;
+             }
+        return I_retval_flag;
+	  }
+	  
+	  
+	   public static int FI_parse_flags (
+			   final String PI_S_data) {
+		   
+		    int I_retval;
+		    
+		     I_retval = FI_parse_flags(
+	    			     PI_S_data,
+	    			     (int)0);
+		    return I_retval;
+	   }
+	  
+	    public static int FI_parse_flags (
+			 final String PI_S_data, 
+	         final int PI_I_pos_start_f0) {
+	    	
+	    	 int I_retval;
+	    	 
+	    	 I_retval = FI_parse_flags(
+	    			     PI_S_data,
+	    			     PI_I_pos_start_f0,
+	    			     PI_S_data.length());
+	    	 return I_retval;
+	    }
+			   
+	   public static int FI_parse_flags (
+			   final String PI_S_data, 
+			   final int PI_I_pos_start_f0, 
+			   int PI_I_len_f1) {
+		   
+		   int I_retval;
+		  
+		   I_retval =  FI_parse_flags (
+				   PI_S_data.toCharArray(),
+				   PI_I_pos_start_f0,
+				   PI_I_len_f1);
+		   return I_retval;
+	   }
+	  
+	   public static int FI_parse_flags (
+			   final char[] PI_AC_data, 
+			   final int PI_I_pos_start_f0,
+			   int PI_I_len_f1) {
+		   
+		 PatternSyntaxException E_synt;
+		 RuntimeException E_rt;
+		 
+		 int i1, i2, I_flag;
+		 char c1;
+		 String S_msg_1;
+		 boolean B_enable;
+		 int I_retval = 0;
+		 
+		 B_enable = true;
+		
+		 i1 = 0;
+		 for (i2 = PI_I_pos_start_f0; i2 < PI_I_len_f1; i2++) {
+            c1 =  PI_AC_data[i2];
+            switch (c1) {
+                case '+':
+                    B_enable = true;
+                    break;
+                case '-':
+                    B_enable = false;
+                    break;
+                default:
+                	try {
+                       I_flag = FI_get_flag(c1);
+                	}
+                	catch (PatternSyntaxException PI_E_synt) {
+                		S_msg_1 = PatternSyntaxException.class.getSimpleName() + " Occured at index " + i2 + "/" + i1 + ".";
+                		E_rt = new RuntimeException(S_msg_1, PI_E_synt);
+                		throw E_rt;
+                	   }
+                    if (B_enable) {
+                    	I_retval |= I_flag;
+                        }
+                    else  {
+                    	I_retval &= (~I_flag); 
+                    }
+                 }
+              i1++;
+		      }
+           return I_retval;
+		  } 
+	   
+	   }

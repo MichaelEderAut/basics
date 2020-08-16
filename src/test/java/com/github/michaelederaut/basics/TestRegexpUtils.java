@@ -2,7 +2,6 @@ package com.github.michaelederaut.basics;
 
 import com.github.michaelederaut.basics.RegexpUtils;
 
-// import regexodus.Pattern;
 import java.util.regex.Pattern;
 public class TestRegexpUtils {
 
@@ -21,8 +20,10 @@ public class TestRegexpUtils {
     
 	// P_dummy = new Pattern("", I_res_flags);
 	  P_dummy = Pattern.compile("", I_res_flags);
-	 S_res_flags = P_dummy.flagsAsString();
-	  S_res_flags = P_dummy.
+	 I_res_flags = P_dummy.flags();
+	 
+	  S_res_flags = RegexpUtils.FS_flags_as_string(I_res_flags);
+	  
 	 S_msg_2 = "Int-argument: " + I_res_flags + " String result: \'" + S_res_flags + "\'";
 	 System.out.println(S_msg_2);
 	}
