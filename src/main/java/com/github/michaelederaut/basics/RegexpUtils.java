@@ -9,14 +9,10 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
-// import regexodus.Pattern;
-// import regexodus.Matcher;
-
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.github.michaelederaut.basics.StaticMethodUtils;
 
-// import regexodus.PatternSyntaxException;
 
 /**
  * 
@@ -601,11 +597,11 @@ public class RegexpUtils {
             	 I_retval_flag =  Pattern.UNICODE_CHARACTER_CLASS;
                  break;
             default:
-            	E_synt = new PatternSyntaxException("unknown flag: ");
+            	E_synt = new PatternSyntaxException("unknown flag: ", Character.toString(PI_C_flag) , 0);
             	throw E_synt;
              }
         return I_retval_flag;
-	  }
+	    }
 	  
 	  
 	   public static int FI_parse_flags (

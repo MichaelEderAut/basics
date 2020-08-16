@@ -17,7 +17,8 @@ import java.util.concurrent.TimeoutException;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 
 public class StreamUtils {
 

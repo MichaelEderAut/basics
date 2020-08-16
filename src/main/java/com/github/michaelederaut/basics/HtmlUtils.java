@@ -1,6 +1,7 @@
 package com.github.michaelederaut.basics;
 
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 // import org.jsoup.safety.Whitelist;
@@ -27,7 +28,7 @@ public class HtmlUtils {
 
 	public static final String S_re_remove_comments =  "<!--[\\s\\S]*?-->";
 	public static final String S_re_doc_type = "^\\s*(<\\!DOCTYPE\\s+([^>]+)>)\\s*(.*?)$";
-	public static final Pattern P_doc_type = Pattern.compile(S_re_doc_type, Pattern.DOTALL | Pattern.IGNORE_CASE);
+	public static final Pattern P_doc_type = Pattern.compile(S_re_doc_type, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 //	public static final String S_re_html_trunk  = "^\\s*(<html[^>]*>)\\s*(<head[^>]*>" +
 //	                                              "(.*?)<\\/head>)\\s*(.*?)$";
 	public static final String S_re_html_trunk  = 

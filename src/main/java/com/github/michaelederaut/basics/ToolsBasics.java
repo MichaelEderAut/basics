@@ -7,7 +7,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 
 public class ToolsBasics {
 
@@ -48,7 +49,7 @@ public class ToolsBasics {
 	public static final String S_re_leading_zeroes = "^0*([1-9]\\d*)$";
 	public static final Pattern P_leading_zeroes = Pattern.compile(S_re_leading_zeroes);
 	
-	public static final int I_flags_case_insensitive = Pattern.IGNORE_CASE;
+	public static final int I_flags_case_insensitive = Pattern.CASE_INSENSITIVE;
 	
 	public static final String S_re_bnt_timestamp_short = "(\\d{4})\\-(\\d{2})\\-(\\d{2})_(\\d{2})\\-(\\d{2})\\-(\\d{2})";
 	public static final String S_re_bnt_timestamp_short_serial = S_re_bnt_timestamp_short + "\\." + "(\\d{1,4})";

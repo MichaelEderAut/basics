@@ -19,7 +19,8 @@ import javax.swing.SwingWorker;  // not relevant for windows OS
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import regexodus.Pattern;
+// import regexodus.Pattern;
+import java.util.regex.Pattern;
 
 import com.github.michaelederaut.basics.StreamUtils.RangedPattern;
 import static com.github.michaelederaut.basics.ToolsBasics.FS;
