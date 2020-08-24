@@ -144,9 +144,11 @@ public class ToolsBasics {
    /**
     * 
     * @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
+    * @param PI_S_number String representation of the number to parse 
+    * @return int value of the parsed number
     * 
     */
-   @Deprecated 
+   @Deprecated
    public static Integer FI_parse_strict_decimal(final String PI_S_number) {
 	   
 	   GroupMatchResult O_group_match_result;
