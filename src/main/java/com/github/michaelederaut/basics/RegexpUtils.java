@@ -13,7 +13,6 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.github.michaelederaut.basics.StaticMethodUtils;
 
-
 /**
  * 
  * @author Lee
@@ -102,7 +101,7 @@ public class RegexpUtils {
 		     else {
 			    return false;
 			    }
-	     }
+	        }
 	     
 	  @Override
 	  public int hashCode() {

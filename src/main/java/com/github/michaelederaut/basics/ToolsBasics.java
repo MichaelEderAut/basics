@@ -144,9 +144,11 @@ public class ToolsBasics {
    /**
     * 
     * @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
+    * @param PI_S_number String representation of the number to parse 
+    * @return int value of the parsed number
     * 
     */
-   @Deprecated 
+   @Deprecated
    public static Integer FI_parse_strict_decimal(final String PI_S_number) {
 	   
 	   GroupMatchResult O_group_match_result;
@@ -171,11 +173,15 @@ public class ToolsBasics {
 	   Integer I_res_parse;
 	
 	   I_retval = PI_I_default;
-	   I_res_parse = FI_parse_strict_decimal(PI_S_number);
-	   if (I_res_parse != null) {
-		   I_retval = I_res_parse;
+	  
+	   try {
+		  I_res_parse = Integer.parseInt(PI_S_number);
+	    } catch (NumberFormatException e) {
+		   return I_retval;
 	       }
-	   
+	 
+	   I_retval = I_res_parse;
+	          
 	   return I_retval;
  }
  
@@ -183,6 +189,8 @@ public class ToolsBasics {
 /**
 * 
 * @deprecated Use standard method <code>Integer.parseInt("...", 10)</code> instead
+* @param PI_S_number String representation of the number to parse 
+* @return int value of the parsed number
 * 
 */
    @Deprecated 
@@ -199,6 +207,8 @@ public class ToolsBasics {
 /**
 * 
 * @deprecated Use standard method <code>Long.parseLong("...", 10)</code> instead
+* @param PI_S_number String representation of the number to parse 
+* @return Long value of the parsed number
 * 
 */
  @Deprecated  
@@ -225,11 +235,14 @@ public class ToolsBasics {
 	   Long L_res_parse;
 	   
 	   L_retval = PI_L_default;
-	   L_res_parse = FL_parse_strict_decimal(PI_S_number);
-	   if (L_res_parse != null) {
-		   L_retval = L_res_parse; 
-	       }
-	   
+	   try {
+		 L_res_parse = Long.parseLong(PI_S_number);
+	   } catch (NumberFormatException e) {
+		 return L_retval;
+	   }
+			   
+		L_retval = L_res_parse; 
+	       
 	   return L_retval;
  }
  
