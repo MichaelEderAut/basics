@@ -268,7 +268,7 @@ public class RegexpUtils {
 		  
 		  HS_retval = FHS_get_named_group_map(O_pattern);
 		 
-		 return HS_retval;
+		  return HS_retval;
 	     }
 	 
 	  
@@ -276,12 +276,12 @@ public class RegexpUtils {
 		 public  String S_grp_val;
 		 public  int I_idx_d0;
 		  
-		  public NamedMatch(
+		 public NamedMatch(
 				  final String PI_S_grp_val,
 				  final int    PI_I_idx_f0) {
 			
-			  this.S_grp_val    = PI_S_grp_val;
-			  this.I_idx_d0 = PI_I_idx_f0;
+			  this.S_grp_val = PI_S_grp_val;
+			  this.I_idx_d0  = PI_I_idx_f0;
 			  return;
 		      }  
 		  }
@@ -374,6 +374,7 @@ public class RegexpUtils {
 			    NullPointerException E_np;
 			    IllegalArgumentException E_ill_arg;
 			    RuntimeException E_rt;
+			    HashMap<String, Integer> HS_named_group;
 			    
 				Matcher M_matcher;
 				GroupMatchResult O_retval;
@@ -427,9 +428,14 @@ public class RegexpUtils {
 						S_match = M_matcher.group(i1);
 						O_retval.AS_numbered_groups[i1] = S_match;
 						}
-				    O_retval.I_map_size_f1 = O_named_pattern.HS_named_group_map.size();
-				    
-				    F_action = (final String PI_S_named_gr, final Integer PI_I_idx_f0) -> {
+					if ((HS_named_group = O_named_pattern.HS_named_group_map) == null) {
+					   O_retval.I_map_size_f1 = 0;
+					   O_retval.HS_named_groups = new HashMap<String, NamedMatch>(0);
+					   }
+					else {
+					   O_retval.I_map_size_f1 = HS_named_group.size();
+					   
+					   F_action = (final String PI_S_named_gr, final Integer PI_I_idx_f0) -> {
 				    	NamedMatch O_named_match;
 				      	String  S_receiving_match, S_match_from_array;
 				    	boolean B_found_named_match;
@@ -441,7 +447,11 @@ public class RegexpUtils {
 				    	O_retval.HS_named_groups.put(PI_S_named_gr, O_named_match);
 				        };
 				    
-				    O_named_pattern.HS_named_group_map.forEach(F_action);   
+				    O_named_pattern.HS_named_group_map.forEach(F_action);
+					   
+					   }
+					
+				     
 				}
 				else {
 				   O_retval = RegexpUtils.NO_MATCH; 
