@@ -171,9 +171,9 @@ return AO_retval_cell_styles_ct;
 }
 
 /**
- * @param PB_O_ws_target
- * @param PI_AI_rows
- * @param PI_O_cell_copy_policy
+ * @param PB_O_ws_target target worksheet
+ * @param PI_AI_rows rows to copy to the target workshee
+ * @param PI_O_cell_copy_policy cell copy policy
  * 
  * @see <a href="https://stackoverflow.com/questions/54430518/why-am-i-getting-illegalargumentexception-while-using-copyrowfrom-in-xssfro">
  * Workaround for Apache-POI bug:<br>

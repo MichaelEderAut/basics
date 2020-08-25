@@ -145,8 +145,9 @@ public class DomNavigator {
 	 * <li>long form: <code>*[@id='foo']</code></li>
 	 * <li>or short: form <code>id('bar')</code></li></ul>
 	 * 
-	 * @param PI_S_xpath String
-	 * @param PO_I_chars_consumed MubableInt
+	 * @param PI_S_xpath String xpath to be parsed
+	 * @param PI_AO_elems_found_so_far List of elements found that have been found before
+	 * @param PO_I_chars_consumed MutableInt
 	 * @return String <i>foo</i> resp. <i>bar</i> or null if there is no match.
 	 */
 	protected  static  String FS_id_to_find(
