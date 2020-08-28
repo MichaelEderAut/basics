@@ -1,6 +1,7 @@
 package com.github.michaelederaut.basics;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,12 +16,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.google.common.util.concurrent.SimpleTimeLimiter;
+// import sun.nio.ch.FileChannelImpl;
+
+// https://stackoverflow.com/questions/42538750/unable-to-export-a-package-from-java-base-module/42541096#42541096
 
 import com.github.michaelederaut.basics.RegexpUtils.GroupMatchResult;
 // import regexodus.Pattern;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
+
 public class StreamUtils {
+	
+	public static final String S_field_name_chan = "channel";
+	public static final String S_field_name_path = "path";
 
 	public static class RangedPattern {
 		
@@ -403,4 +412,58 @@ public class StreamUtils {
     	    PB_O_end_criterion.L_time_elapsed_total = L_timestamp_2 - L_timestamp_init;
 	    	return AS_retval;	    
 	    } 
+	    
+	    public static String FO_get_path_from_buffered_reader(BufferedReader PI_O_buff_rdr) {
+	    	String S_pna_retval = null;
+	    	
+	    	RuntimeException E_rt_1, E_rt_2;
+	    	NullPointerException E_np;
+	    	ClassCastException E_class_cast;
+	    	Object O_res_channel, O_res_path; 
+	    	
+	    	String S_msg_1, S_msg_2;
+	    	
+	    	O_res_path = null;
+	    	try {
+				try {
+					O_res_channel = FieldUtils.readField(PI_O_buff_rdr, S_field_name_chan , true);
+				} catch (IllegalAccessException PI_E_ill_acc) {
+				    S_msg_1 = "Unable to read field: \'" + S_field_name_chan + "\' from BufferedReader"; 
+					E_rt_1 = new RuntimeException(S_msg_1, PI_E_ill_acc);
+					throw E_rt_1;
+				    }
+				if (O_res_channel == null) {
+					S_msg_1 = "Field: \'" + S_field_name_chan + "\' in BufferedReader is null";
+					E_np = new NullPointerException(S_msg_1);
+					throw E_np;
+				    }
+				
+				try {
+				   O_res_path = FieldUtils.readField(O_res_channel, S_field_name_path , true);
+				} catch (IllegalAccessException PI_E_ill_acc) {
+				    S_msg_1 = "Unable to read field: \'" + S_field_name_path + "\' from FileChannel"; 
+					E_rt_1 = new RuntimeException(S_msg_1, PI_E_ill_acc);
+					throw E_rt_1;
+				    }
+				 if (O_res_path == null) {
+					S_msg_1 = "Field: \'" + S_field_name_path + "\' in FileChannel is null"; 
+					E_np = new NullPointerException(S_msg_1);
+					throw E_np;
+				    } 
+				 if (!(O_res_path instanceof String)) {
+					 S_msg_1 = "Field: \'" +  S_field_name_path + "of type \'" + O_res_path.getClass().getName() + "\'\n" +
+				               "should be String";
+					 E_class_cast = new ClassCastException(S_msg_1);
+					 throw E_class_cast;
+				 }
+				 S_pna_retval = (String)S_pna_retval;
+			} catch (NullPointerException|ClassCastException PI_E_np) {
+				 S_msg_2 = "Unable to get path from BufferedReader";
+				 E_rt_2 = new RuntimeException(S_msg_2, PI_E_np);
+				 E_rt_2.printStackTrace(System.err);
+			     }
+	    	
+	    	return S_pna_retval;
+	    	
+	    }
 	}
