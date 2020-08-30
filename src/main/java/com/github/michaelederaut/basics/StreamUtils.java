@@ -413,7 +413,7 @@ public class StreamUtils {
 	    	return AS_retval;	    
 	    } 
 	    
-	    public static String FO_get_path_from_buffered_reader(BufferedReader PI_O_buff_rdr) {
+	    public static String FS_get_path_from_buffered_reader(BufferedReader PI_O_buff_rdr) {
 	    	String S_pna_retval = null;
 	    	
 	    	RuntimeException E_rt_1, E_rt_2;
