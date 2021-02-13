@@ -10,8 +10,8 @@
  
  <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>15</maven.compiler.target>
-    <maven.compiler.source>15</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
     <java.home>{$env.JAVA_HOME}</java.home>
   </properties>
   
@@ -86,14 +86,14 @@
     <dependency>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-lang3</artifactId>
-    <version>3.10</version>
+    <version>3.12.0</version>
     </dependency> 
 
     <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
     <dependency>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-text</artifactId>
-    <version>1.4</version>
+    <version>1.9</version>
     </dependency>
 
 <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
@@ -107,7 +107,7 @@
  <dependency>
     <groupId>org.codehaus.plexus</groupId>
     <artifactId>plexus-utils</artifactId>
-    <version>3.1.0</version>
+    <version>3.4.1</version>
 </dependency> 
 
 <!-- https://mvnrepository.com/artifact/org.apache.axis2/axis2 -->
@@ -123,12 +123,12 @@
 <dependency>
     <groupId>com.google.guava</groupId>
     <artifactId>guava</artifactId>
-    <version>29.0-jre</version>
+    <version>31.0.1-jre</version>
 </dependency>
 <dependency>
     <groupId>com.google.guava</groupId>
     <artifactId>guava-gwt</artifactId>
-    <version>29.0-jre</version> 
+    <version>31.0.1-jre</version> 
 </dependency>
 
 <!-- https://mvnrepository.com/artifact/com.github.fracpete/vfsjfilechooser2 -->
