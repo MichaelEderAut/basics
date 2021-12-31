@@ -1,0 +1,32 @@
+module com.github.michaelederaut.basics {
+	exports com.github.michaelederaut.basics.joox;
+	exports com.github.michaelederaut.basics.cssselectortoxpath.model;
+	exports com.github.michaelederaut.basics.joox.selector;
+	exports com.github.michaelederaut.basics;
+	exports com.github.michaelederaut.basics.props;
+	exports com.github.michaelederaut.basics.cssselectortoxpath.utilities;
+	exports com.github.michaelederaut.basics.xpath2cssselector;
+	exports com.github.michaelederaut.basics.xml;
+
+	requires com.google.common;
+	requires com.google.common.util.concurrent;
+	requires sun.nio.ch;
+	requires commons.io;
+	requires dom4j;
+	requires java.desktop;
+	requires java.prefs;
+	requires java.sql;
+	requires java.xml;
+	requires java.xml.bind;
+	requires jsoup;
+	requires junit;
+	requires ooxml.schemas;
+	requires org.apache.commons.collections4;
+	requires org.apache.commons.lang3;
+	requires plexus.utils;
+	requires poi;
+	requires poi.ooxml;
+	requires poi.ooxml.schemas;
+	requires vfsjfilechooser2;
+	requires xmlbeans;
+}
