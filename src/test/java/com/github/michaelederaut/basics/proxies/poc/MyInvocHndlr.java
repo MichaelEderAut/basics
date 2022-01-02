@@ -38,7 +38,7 @@ public class MyInvocHndlr implements InvocationHandler {
 //		if (args != null) {}
 		
 		
-		SB_res = ClassInstances.FSB_dump(proxy);
+		SB_res = ClassInstances.FSB_dump(proxy, "From within invocation-handler");
 		
 		System.out.println(SB_res);
 		return null;
